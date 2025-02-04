@@ -8,7 +8,12 @@ import json
 import trimesh
 from scene_synthesizer.assets import TrimeshSceneAsset
 
-TRY = 10
+#CONST
+COUNT_OF_MILK_ON_BOARD = 10
+BOARDS = 5
+
+#iterators
+iter_of_milks = 0
 
 class MyShelfAsset(TrimeshSceneAsset):
     """A shelf asset."""
@@ -115,13 +120,13 @@ class MyShelfAsset(TrimeshSceneAsset):
 
 def try_shelf_placement():
     scene = synth.Scene()
-
+    global iter_of_milks
     shelf = MyShelfAsset(
         width=1.517,
         depth=0.5172,
         height=2.0,
         board_thickness=0.05135,
-        num_boards=5,
+        num_boards=BOARDS,
         num_side_columns=2,
         bottom_board=True,
         cylindrical_columns=False,
@@ -151,44 +156,17 @@ def try_shelf_placement():
         utils.PositionIteratorFarthestPoint(sample_count=1000),
     ]
 
-    for i in range(TRY):
-        scene.place_object(
-            obj_id=f"milk_1{i}",
-            obj_support_id_iterator=utils.cycle_list(support_data, [0]),
-            obj_asset=milk,
-            support_id='support',
-            obj_orientation_iterator=utils.orientation_generator_uniform_around_z(),
-            obj_position_iterator=obj_position_iterator[4],
-        )
-
-    for i in range(TRY):
-        scene.place_object(
-            obj_id=f"milk_2{i}",
-            obj_support_id_iterator=utils.cycle_list(support_data, [1]),
-            obj_asset=milk,
-            support_id='support',
-            obj_orientation_iterator=utils.orientation_generator_uniform_around_z(),
-            obj_position_iterator=obj_position_iterator[4],
-        )
-    for i in range(TRY):
-        scene.place_object(
-            obj_id=f"milk_3{i}",
-            obj_support_id_iterator=utils.cycle_list(support_data, [2]),
-            obj_asset=milk,
-            support_id='support',
-            obj_orientation_iterator=utils.orientation_generator_uniform_around_z(),
-            obj_position_iterator=obj_position_iterator[4],
-        )
-
-    for i in range(TRY):
-        scene.place_object(
-            obj_id=f"milk_4{i}",
-            obj_support_id_iterator=utils.cycle_list(support_data, [3]),
-            obj_asset=milk,
-            support_id='support',
-            obj_orientation_iterator=utils.orientation_generator_uniform_around_z(),
-            obj_position_iterator=obj_position_iterator[4],
-        )
+    for num in range(BOARDS):
+        for i in range(COUNT_OF_MILK_ON_BOARD):
+            scene.place_object(
+                obj_id=f"milk_{i + iter_of_milks}",
+                obj_support_id_iterator=utils.cycle_list(support_data, [num]),
+                obj_asset=milk,
+                support_id='support',
+                obj_orientation_iterator=utils.orientation_generator_uniform_around_z(),
+                obj_position_iterator=obj_position_iterator[4],
+            )
+        iter_of_milks += COUNT_OF_MILK_ON_BOARD
 
     json_str = synth.exchange.export.export_json(scene, include_metadata=False)
 
