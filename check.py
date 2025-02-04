@@ -19,25 +19,25 @@ def find_neibours(pos: tuple[int, int], n: int, m: int) -> list[tuple[int, int]]
 
 
 def check_table(
-    mas: list[list[int]], pos: tuple[int, int], emp: int = 0, all_reached=False
+    mat: list[list[int]], pos: tuple[int, int], emp: int = 0, all_reached: bool = False
 ) -> bool:
-    n: int = len(mas)
-    m: int = len(mas[0])
+    n: int = len(mat)
+    m: int = len(mat[0])
     had: deque = deque()
-    dst: list[list[int]] = [[1e10] * len(mas[0]) for c in range(n)]
+    dst: list[list[int]] = [[1e10] * len(mat[0]) for c in range(n)]
 
     dst[0][0] = 0
     had.append(pos)
     while len(had):
         v: int = had.popleft()
         for el in find_neibours(v, n, m):
-            if mas[el[0]][el[1]] == emp and dst[el[0]][el[1]] != 0:
+            if mat[el[0]][el[1]] == emp and dst[el[0]][el[1]] != 0:
                 had.append(el)
                 dst[el[0]][el[1]] = 0
     for i in range(n):
         for j in range(m):
 
-            if mas[i][j] != emp:
+            if mat[i][j] != emp:
                 good: bool = False
                 for el in find_neibours((i, j), n, m):
                     good = good or (dst[el[0]][el[1]] == 0)
