@@ -36,5 +36,57 @@ def add_one_product(
 
 
 ms = [[0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 1, 0]]
-print(add_one_product((2, 1), (0, 3), ms, 2))
-print(ms)
+# print(add_one_product((2, 1), (0, 3), ms, 2, 2))
+# print(ms)
+
+
+def get_rd_point(n: int, m: int):
+    return (random.randint(0, n - 1), random.randint(0, m - 1))
+
+
+def add_many_products(
+    door: tuple[int, int],
+    mat: list[list[int]],
+    name_to_cnt: dict,
+    all_reached: bool = False,
+) -> tuple[bool, list[list]]:
+    n: int = len(mat)
+    m: int = len(mat[0])
+    id_to_name: list[str] = []
+    id: int = 0
+
+    for el in name_to_cnt:
+        id_to_name.append(el)
+        goodpr = False
+        id += 1
+        for j in range(2 * n * m):
+            s = get_rd_point(n, m)
+            if add_one_product(s, door, mat, id, name_to_cnt[el], all_reached):
+                goodpr = True
+                break
+        if not (goodpr):
+            return (False, mat)
+    for i in range(n):
+        for j in range(m):
+            if mat[i][j] > 0:
+                mat[i][j] = id_to_name[mat[i][j] - 1]
+
+    return (True, mat)
+
+
+ms = [
+    [0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0],
+]
+tr = [[0 for j in range(7)] for i in range(7)]
+
+my_food = {1: 2, 2: 2, 3: 2, 4: 3, 5: 2, 6: 1, 7: 2, 8: 3, 9: 3}
+(a, b) = add_many_products((0, 0), tr, my_food)
+print(a)
+for el in b:
+    print(el)
