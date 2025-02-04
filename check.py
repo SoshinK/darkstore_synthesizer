@@ -25,8 +25,9 @@ def check_table(
     m: int = len(mat[0])
     had: deque = deque()
     dst: list[list[int]] = [[1e10] * len(mat[0]) for c in range(n)]
-
-    dst[0][0] = 0
+    if mat[pos[0]][pos[1]] != 0:
+        return False
+    dst[pos[0]][pos[1]] = 0
     had.append(pos)
     while len(had):
         v: int = had.popleft()
