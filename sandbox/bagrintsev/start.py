@@ -30,11 +30,7 @@ scene.place_object('milk_0', milk, support_id='table_surface')
 
 scene.colorize()
 
-json_str = synth.exchange.export.export_json(scene, include_metadata=False)
 
-with open('shit.json', 'w') as f:
-    # f.write(json_str)
-    json.dump(json.loads(json_str), f, indent=4)
 
 # obj_output = synth.exchange.export.export_obj(scene)
 
