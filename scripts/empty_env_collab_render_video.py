@@ -113,19 +113,20 @@ class MyEmptyEnv(BaseEnv):
 
     def _get_obs_extra(self, info: Dict):
         return dict()
+    
 
-env = gym.make(ENV_NAME, robot_uids='fetch', num_envs=1, render_mode="human", enable_shadow=True)
+env = gym.make(ENV_NAME, robot_uids='fetch', num_envs=1, render_mode="rgb_array", enable_shadow=True)
 
 pose = sapien_utils.look_at([3.25, -3.25, 1.5], [0.0, 0.0, 0.2])
 env._default_human_render_camera_configs = CameraConfig("render_camera", pose, 2048, 2048, 1, 0.01, 100)
 
-# env = RecordEpisode(
-#     env,
-#     "./videos", # the directory to save replay videos and trajectories to
-#     # on GPU sim we record intervals, not by single episodes as there are multiple envs
-#     # each 100 steps a new video is saved
-#     max_steps_per_video=100
-# )
+env = RecordEpisode(
+    env,
+    "./videos", # the directory to save replay videos and trajectories to
+    # on GPU sim we record intervals, not by single episodes as there are multiple envs
+    # each 100 steps a new video is saved
+    max_steps_per_video=100
+)
 
 # step through the environment with random actions
 obs, _ = env.reset()
@@ -137,7 +138,7 @@ if isinstance(viewer, sapien.utils.Viewer):
 env.render()
 
 
-for i in tqdm(range(10000)):
+for i in tqdm(range(100)):
     action = env.action_space.sample()
     obs, reward, terminated, truncated, info = env.step(torch.zeros_like(torch.from_numpy(action)))
     
