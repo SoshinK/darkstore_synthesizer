@@ -2,13 +2,12 @@ import numpy as np
 import scene_synthesizer as synth
 from scene_synthesizer import procedural_assets as pa
 from scene_synthesizer import procedural_scenes as ps
+from scene_synthesizer.assets import TrimeshSceneAsset
+from scene_generator import add_many_products
 from scene_synthesizer import utils
 import trimesh.transformations as tra
 import json
 import trimesh
-#from gen import add_many_products
-from scene_synthesizer.assets import TrimeshSceneAsset
-from scene_generator import add_many_products
 
 #CONST
 COUNT_OF_MILK_ON_BOARD = 10
@@ -183,6 +182,9 @@ def try_shelf_placement():
     scene.colorize()
     scene.show()
 
+# orientation_generator_const
+# orientation_generator_stable_poses
+# orientation_generator_uniform_around_z
 
 if __name__ == '__main__':
     n, m = map(int, input('Room sizes like "N M":\n').split())
@@ -200,5 +202,9 @@ if __name__ == '__main__':
         count = int(input(f'Write count of {name}:\n'))
         name_to_cnt[name] = count
     is_gen, room = add_many_products((x, y), mat, name_to_cnt)
-    print(room)
+
+    if not is_gen:
+        raise UserError('retry to generate a scene')
+
+    
     try_shelf_placement()
