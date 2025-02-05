@@ -6,14 +6,20 @@ from scene_synthesizer import utils
 import trimesh.transformations as tra
 import json
 import trimesh
+#from gen import add_many_products
 from scene_synthesizer.assets import TrimeshSceneAsset
+from scene_generator import add_many_products
 
 #CONST
 COUNT_OF_MILK_ON_BOARD = 10
 BOARDS = 5
+NAMES_OF_PRODUCTS = ('milk', 'cans')
 
-#iterators
+#ITERATORS
 iter_of_milks = 0
+
+class UserError(Exception):
+    pass
 
 class MyShelfAsset(TrimeshSceneAsset):
     """A shelf asset."""
@@ -179,4 +185,20 @@ def try_shelf_placement():
 
 
 if __name__ == '__main__':
+    n, m = map(int, input('Room sizes like "N M":\n').split())
+    x, y = map(int, input('Door coordinates like "X Y":\n').split())
+    mat = [m * [0] for _ in range(n)]
+    have_blocked = int(input('Do you need to block some coords [yes-1/no-0]?\n'))
+    if have_blocked:
+        print(f'Input matrix {n}X{m} with 1 - blocked, 0 - nothing without whitespaces')
+        for i in range(n):
+            s = input()
+            mat[i] = [int(x) for x in s]
+
+    name_to_cnt = {}
+    for i, name in enumerate(NAMES_OF_PRODUCTS):
+        count = int(input(f'Write count of {name}:\n'))
+        name_to_cnt[name] = count
+    is_gen, room = add_many_products((x, y), mat, name_to_cnt)
+    print(room)
     try_shelf_placement()
