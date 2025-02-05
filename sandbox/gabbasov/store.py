@@ -8,6 +8,7 @@ from scene_synthesizer import utils
 import trimesh.transformations as tra
 import json
 import trimesh
+import os
 
 #CONST
 COUNT_OF_MILK_ON_BOARD = 10
@@ -148,7 +149,7 @@ def try_shelf_placement():
         gravity=np.array([0, 0, -1]),
     )
     milk = synth.assets.MeshAsset(
-        'sandbox/gabbasov/milk.glb',
+        f'{os.path.abspath(__file__)}/../milk.glb',
         scale=1.1,
         origin=("com", "com", "bottom"),
     )
