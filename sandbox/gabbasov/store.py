@@ -139,6 +139,7 @@ def try_shelf_placement():
         shift_bottom=0.131952 - 0.05135 / 2,
         shift_top=0.2288 + 0.05135 / 2
     )
+
     scene.add_object(shelf, 'shelf')
 
     support_data = scene.label_support(
@@ -147,7 +148,7 @@ def try_shelf_placement():
         gravity=np.array([0, 0, -1]),
     )
     milk = synth.assets.MeshAsset(
-        '/home/timur/dark/sandbox_gabbasowt/milk.glb',
+        'sandbox/gabbasov/milk.glb',
         scale=1.1,
         origin=("com", "com", "bottom"),
     )
@@ -161,17 +162,31 @@ def try_shelf_placement():
         utils.PositionIteratorFarthestPoint(sample_count=1000),
     ]
 
-    for num in range(BOARDS):
-        for i in range(COUNT_OF_MILK_ON_BOARD):
-            scene.place_object(
-                obj_id=f"milk_{i + iter_of_milks}",
-                obj_support_id_iterator=utils.cycle_list(support_data, [num]),
-                obj_asset=milk,
-                support_id='support',
+    cnt = 0
+    for x in range(3):
+        for y in range(2):
+            scene.add_object(shelf, f'table{cnt}', transform=tra.translation_matrix((x * 1.5, y * 1.5, 0.0)))
+            scene.label_support(f'support{cnt}', obj_ids=[f'table{cnt}'])
+            scene.place_objects(
+                obj_id_iterator=utils.object_id_generator(f"Mug{cnt}_"),
+                obj_asset_iterator=(milk for _ in range(20)),
+                obj_support_id_iterator=scene.support_generator(f'support{cnt}'),
+                obj_position_iterator=obj_position_iterator[cnt],
                 obj_orientation_iterator=utils.orientation_generator_uniform_around_z(),
-                obj_position_iterator=obj_position_iterator[4],
             )
-        iter_of_milks += COUNT_OF_MILK_ON_BOARD
+            cnt += 1
+
+    # for num in range(BOARDS):
+    #     for i in range(COUNT_OF_MILK_ON_BOARD):
+    #         scene.place_object(
+    #             obj_id=f"milk_{i + iter_of_milks}",
+    #             obj_support_id_iterator=utils.cycle_list(support_data, [num]),
+    #             obj_asset=milk,
+    #             support_id='support',
+    #             obj_orientation_iterator=utils.orientation_generator_uniform_around_z(),
+    #             obj_position_iterator=obj_position_iterator[4],
+    #         )
+    #     iter_of_milks += COUNT_OF_MILK_ON_BOARD
 
     json_str = synth.exchange.export.export_json(scene, include_metadata=False)
 
@@ -206,5 +221,4 @@ if __name__ == '__main__':
     if not is_gen:
         raise UserError('retry to generate a scene')
 
-    
     try_shelf_placement()
