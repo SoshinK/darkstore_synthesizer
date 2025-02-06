@@ -33,6 +33,10 @@ import json
 from transforms3d import quaternions
 
 class EmptyRoomFromRobocasa(RoboCasaSceneBuilder):
+    def __init__(self, *args, arena_config=None, **kwargs):
+        self.arena_config = arena_config
+        super().__init__(*args, **kwargs)
+    
     def build(self, build_config_idxs: Optional[List[int]] = None):
         if self.env.agent is not None:
             self.robot_poses = self.env.agent.robot.initial_pose
@@ -49,7 +53,6 @@ class EmptyRoomFromRobocasa(RoboCasaSceneBuilder):
             layout_idx = build_config_idx // 12  # Get layout index (0-9)
             style_idx = build_config_idx % 12  # Get style index (0-11)
             # layout_path = scene_registry.get_layout_path(layout_idx)
-            layout_path = 'layout_warehouse.yaml'
             # layout_path = '/home/kvsoshin/.maniskill/data/scene_datasets/robocasa_dataset/assets/scenes/kitchen_layouts/L_shaped_large.yaml'
             style_path = scene_registry.get_style_path(style_idx)
             # load style
@@ -57,8 +60,12 @@ class EmptyRoomFromRobocasa(RoboCasaSceneBuilder):
                 style = yaml.safe_load(f)
 
             # load arena
-            with open(layout_path, "r") as f:
-                arena_config = yaml.safe_load(f)
+            if self.arena_config is None:
+                layout_path = 'layout_warehouse.yaml'
+                with open(layout_path, "r") as f:
+                    arena_config = yaml.safe_load(f)
+            else:
+                arena_config = self.arena_config
 
             # contains all fixtures with updated configs
             arena = list()
