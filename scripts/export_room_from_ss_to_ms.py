@@ -23,59 +23,70 @@ import random
 import string
 from robocasa_scene_builder import EmptyRoomFromRobocasa
 
-if len(sys.argv) < 3:
-    print("Использование: python script.py <путь_к_JSON_файлу> <путь_к_assets>")
+if len(sys.argv) < 4:
+    print("Использование: python script.py <путь_к_JSON_файлу> <путь_к_assets> <style id (0-11)>")
     sys.exit(1)
 
 json_file_path = sys.argv[1]
 assets_dir = sys.argv[2]
+style_id = int(sys.argv[3])
 
 def generate_random_string(length=10):
     characters = string.ascii_letters + string.digits
     return ''.join(random.choice(characters) for _ in range(length))
 
 
-ENV_NAME = 'Darkstore'
+ENV_NAME = 'DarkstoreEnv'
 
 
 CELL_SIZE = 1.55
 
-def get_arena_config(x_cells=4, y_cells=5, height = 3):
-    x_xize = x_cells * CELL_SIZE
+def get_arena_data(x_cells=4, y_cells=5, height = 3):
+    x_size = x_cells * CELL_SIZE
     y_size = y_cells * CELL_SIZE
     return {
-        'room': {
-            'walls': [
-                {'name': 'wall', 'type': 'wall', 'size': [x_xize / 2, height / 2, 0.02], 'pos': [x_xize / 2, y_size, height / 2]}, 
-                {'name': 'wall_backing', 'type': 'wall', 'backing': True, 'backing_extended': [True, False], 'size': [x_xize / 2, height / 2, 0.1], 'pos': [x_xize / 2, y_size, height / 2]}, 
-                
-                {'name': 'wall_front', 'type': 'wall', 'wall_side' : 'front', 'size': [x_xize / 2, height / 2, 0.02], 'pos': [x_xize / 2, 0, height / 2]}, 
-                {'name': 'wall_front_backing', 'type': 'wall', 'wall_side' : 'front', 'backing': True, 'size': [x_xize / 2, height / 2, 0.1], 'pos': [x_xize / 2, 0, height / 2]}, 
-                
-                {'name': 'wall_left', 'type': 'wall', 'wall_side': 'left', 'size': [y_size / 2, height / 2, 0.02], 'pos': [0, y_size / 2, height / 2]}, 
-                {'name': 'wall_left_backing', 'type': 'wall', 'wall_side': 'left', 'backing': True, 'size': [y_size / 2, height / 2, 0.1], 'pos': [0, y_size / 2, height / 2]}, 
-                
-                {'name': 'wall_right', 'type': 'wall', 'wall_side': 'right', 'size': [y_size / 2, height / 2, 0.02], 'pos': [x_xize, y_size / 2, height / 2]}, 
-                {'name': 'wall_right_backing', 'type': 'wall', 'wall_side': 'right', 'backing': True, 'size': [y_size / 2, height / 2, 0.1], 'pos': [x_xize, y_size / 2, height / 2]}
-            ], 
-            'floor': [
-                {'name': 'floor', 'type': 'floor', 'size': [x_xize / 2, y_size / 2, 0.02], 'pos': [x_xize / 2, y_size / 2, 0.0]}, 
-                {'name': 'floor_backing', 'type': 'floor', 'backing': True, 'size': [x_xize / 2, y_size / 2, 0.1], 'pos': [x_xize / 2, y_size / 2, 0.0]}
-            ]
+        'meta': {
+            'x_size': x_size,
+            'y_size': y_size,
+            'height': height
+        },
+        'arena_config': {
+            'room': {
+                'walls': [
+                    {'name': 'wall', 'type': 'wall', 'size': [x_size / 2, height / 2, 0.02], 'pos': [x_size / 2, y_size, height / 2]}, 
+                    {'name': 'wall_backing', 'type': 'wall', 'backing': True, 'backing_extended': [True, False], 'size': [x_size / 2, height / 2, 0.1], 'pos': [x_size / 2, y_size, height / 2]}, 
+                    
+                    {'name': 'wall_front', 'type': 'wall', 'wall_side' : 'front', 'size': [x_size / 2, height / 2, 0.02], 'pos': [x_size / 2, 0, height / 2]}, 
+                    {'name': 'wall_front_backing', 'type': 'wall', 'wall_side' : 'front', 'backing': True, 'size': [x_size / 2, height / 2, 0.1], 'pos': [x_size / 2, 0, height / 2]}, 
+                    
+                    {'name': 'wall_left', 'type': 'wall', 'wall_side': 'left', 'size': [y_size / 2, height / 2, 0.02], 'pos': [0, y_size / 2, height / 2]}, 
+                    {'name': 'wall_left_backing', 'type': 'wall', 'wall_side': 'left', 'backing': True, 'size': [y_size / 2, height / 2, 0.1], 'pos': [0, y_size / 2, height / 2]}, 
+                    
+                    {'name': 'wall_right', 'type': 'wall', 'wall_side': 'right', 'size': [y_size / 2, height / 2, 0.02], 'pos': [x_size, y_size / 2, height / 2]}, 
+                    {'name': 'wall_right_backing', 'type': 'wall', 'wall_side': 'right', 'backing': True, 'size': [y_size / 2, height / 2, 0.1], 'pos': [x_size, y_size / 2, height / 2]}
+                ], 
+                'floor': [
+                    {'name': 'floor', 'type': 'floor', 'size': [x_size / 2, y_size / 2, 0.02], 'pos': [x_size / 2, y_size / 2, 0.0]}, 
+                    {'name': 'floor_backing', 'type': 'floor', 'backing': True, 'size': [x_size / 2, y_size / 2, 0.1], 'pos': [x_size / 2, y_size / 2, 0.0]}
+                ]
+            }
         }
     }
 
 @register_env(ENV_NAME, max_episode_steps=200000)
-class Darkstore(BaseEnv):
+class DarkstoreEnv(BaseEnv):
     SUPPORTED_REWARD_MODES = ["none"]
     """
     This is just a very smart environment for goida transformation from ss
     """
     IMPORTED_SS_SCENE_SHIFT = np.array([CELL_SIZE / 2, CELL_SIZE / 2, 0])
 
-    def __init__(self, *args, robot_uids="panda", arena_config = None, style_ids = 0, **kwargs):
+    def __init__(self, *args, robot_uids="panda", arena_config = None, meta = None, style_ids = 0, **kwargs):
         self.style_ids = style_ids
         self.arena_config = arena_config
+        self.x_size = meta['x_size']
+        self.y_size = meta['y_size']
+        self.height = meta['height']
         super().__init__(*args, robot_uids=robot_uids, **kwargs)
 
     @property
@@ -85,7 +96,8 @@ class Darkstore(BaseEnv):
 
     @property
     def _default_human_render_camera_configs(self):
-        pose = sapien_utils.look_at([0.2, 0.2, 4], [5, 5, 2])
+        # pose = sapien_utils.look_at([0.2, 0.2, 4], [5, 5, 2])
+        pose = sapien_utils.look_at([self.x_size - 0.1, self.y_size - 0.1, self.height], [0, 0, 0])
         return CameraConfig(
             "render_camera", pose=pose, width=512, height=512, fov=1, near=0.01, far=100
         )
@@ -212,19 +224,24 @@ class Darkstore(BaseEnv):
 
     def _get_obs_extra(self, info: Dict):
         return dict()
-    
-arena_config = get_arena_config(x_cells=10, y_cells=5, height=4)
 
-env = gym.make(ENV_NAME, robot_uids='fetch', style_ids = [11], arena_config=arena_config, num_envs=1, render_mode="human", enable_shadow=True)
+with open(json_file_path, "r") as f: # big_scene , one_shelf_many_milk_scene , customize
+    data = json.load(f)
+
+n = data['meta']['n']
+m = data['meta']['m']
+arena_data = get_arena_data(x_cells=n, y_cells=m, height=4)
+
+env = gym.make(ENV_NAME, robot_uids='fetch', style_ids = [style_id], num_envs=1, render_mode="rgb_array", enable_shadow=True, **arena_data)
 
 
-# env = RecordEpisode(
-#     env,
-#     "./videos", # the directory to save replay videos and trajectories to
-#     # on GPU sim we record intervals, not by single episodes as there are multiple envs
-#     # each 100 steps a new video is saved
-#     max_steps_per_video=100
-# )
+env = RecordEpisode(
+    env,
+    f"./videos_{n}_{m}_style{style_id}", # the directory to save replay videos and trajectories to
+    # on GPU sim we record intervals, not by single episodes as there are multiple envs
+    # each 100 steps a new video is saved
+    max_steps_per_video=100
+)
 
 # step through the environment with random actions
 obs, _ = env.reset()
@@ -236,7 +253,7 @@ if isinstance(viewer, sapien.utils.Viewer):
 env.render()
 
 
-for i in tqdm(range(10000)):
+for i in tqdm(range(10)):
     action = env.action_space.sample()
     obs, reward, terminated, truncated, info = env.step(torch.zeros_like(torch.from_numpy(action)))
 
