@@ -29,10 +29,11 @@ darkstore_synthesizer/
 │── README.md        # Описание проекта
 ``` -->
 
-## Галерея (раздел не готов)
-...
-...
-...
+## Галерея
+Все изображения и видео можно найти в папке gallery/.
+![Шкафы](gallery/Shelfs3.jpg)
+![Работа с едой](gallery/ModelsOfFood.jpg)
+![Прикол](gallery/MillionPolygons.jpg)
 
 ## Авторы  
 - **Михаил Любин**

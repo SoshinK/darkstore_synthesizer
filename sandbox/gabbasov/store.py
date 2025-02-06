@@ -13,27 +13,30 @@ import os
 #CONST
 COUNT_OF_PRODUCT_ON_SHELF = 20
 BOARDS = 5
-ASSETS_PATH = f'{os.path.dirname(os.path.abspath(__file__))}/../../models'
-NAMES_OF_PRODUCTS = {'milk' : synth.assets.MeshAsset(
-        f'{ASSETS_PATH}/milk.glb',
-        scale=1.1, origin=("com", "com", "bottom"),),
-                    'cereal' : synth.assets.MeshAsset(
-        f'{ASSETS_PATH}/cereals.glb',
-        scale=1, origin=("com", "com", "bottom"),),
-                    'coke' : synth.assets.USDAsset(
-        f'{ASSETS_PATH}/coke.usdc',
-        scale=1,
-        origin=("com", "com", "bottom"),),
-                    'baby' : synth.assets.USDAsset(
-        f'{ASSETS_PATH}/baby.usdc',
-        scale=1, origin=("com", "com", "bottom"),),
-                    'banana' : synth.assets.USDAsset(
-        f'{ASSETS_PATH}/banana.usdc',
-        scale=1.5, origin=("com", "com", "bottom"),),
-                    'CokeBottle' : synth.assets.USDAsset(
-        f'{ASSETS_PATH}/CokeBottle.usdc',
-        scale=0.9, origin=("com", "com", "bottom"),),
-        }
+
+ASSETS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../models')
+
+with open(f'{ASSETS_PATH}/assets.json', 'r') as f:
+    assets_config = json.load(f)
+
+asset_type_mapping = {
+    "MeshAsset": synth.assets.MeshAsset,
+    "USDAsset": synth.assets.USDAsset,
+}
+
+NAMES_OF_PRODUCTS = {}
+
+for name, params in assets_config.items():
+    asset_type_str = params.pop('asset_type')
+    asset_constructor = asset_type_mapping.get(asset_type_str)
+    if asset_constructor is None:
+        raise ValueError(f"Unknown asset type: {asset_type_str}")
+
+    file_path = os.path.join(ASSETS_PATH, params.pop('filename'))
+
+    asset_obj = asset_constructor(file_path, **params)
+
+    NAMES_OF_PRODUCTS[name] = asset_obj
 
 class UserError(Exception):
     pass
