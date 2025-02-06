@@ -31,7 +31,7 @@ darkstore_synthesizer/
 
 ## Галерея
 Все изображения и видео можно найти в папке gallery/.
-![Визуализация даркстора](gallery/FoodShelf.mp4)
+![Шкафы](gallery/Shelfs3.jpg)
 ![Работа с едой](gallery/ModelsOfFood.jpg)
 ![Прикол](gallery/MillionPolygons.jpg)
 
