@@ -48,8 +48,13 @@ def get_arena_config(x_cells=4, y_cells=5, height = 3):
             'walls': [
                 {'name': 'wall', 'type': 'wall', 'size': [x_xize / 2, height / 2, 0.02], 'pos': [x_xize / 2, y_size, height / 2]}, 
                 {'name': 'wall_backing', 'type': 'wall', 'backing': True, 'backing_extended': [True, False], 'size': [x_xize / 2, height / 2, 0.1], 'pos': [x_xize / 2, y_size, height / 2]}, 
+                
+                {'name': 'wall_front', 'type': 'wall', 'wall_side' : 'front', 'size': [x_xize / 2, height / 2, 0.02], 'pos': [x_xize / 2, 0, height / 2]}, 
+                {'name': 'wall_front_backing', 'type': 'wall', 'wall_side' : 'front', 'backing': True, 'size': [x_xize / 2, height / 2, 0.1], 'pos': [x_xize / 2, 0, height / 2]}, 
+                
                 {'name': 'wall_left', 'type': 'wall', 'wall_side': 'left', 'size': [y_size / 2, height / 2, 0.02], 'pos': [0, y_size / 2, height / 2]}, 
                 {'name': 'wall_left_backing', 'type': 'wall', 'wall_side': 'left', 'backing': True, 'size': [y_size / 2, height / 2, 0.1], 'pos': [0, y_size / 2, height / 2]}, 
+                
                 {'name': 'wall_right', 'type': 'wall', 'wall_side': 'right', 'size': [y_size / 2, height / 2, 0.02], 'pos': [x_xize, y_size / 2, height / 2]}, 
                 {'name': 'wall_right_backing', 'type': 'wall', 'wall_side': 'right', 'backing': True, 'size': [y_size / 2, height / 2, 0.1], 'pos': [x_xize, y_size / 2, height / 2]}
             ], 
@@ -61,14 +66,15 @@ def get_arena_config(x_cells=4, y_cells=5, height = 3):
     }
 
 @register_env(ENV_NAME, max_episode_steps=200000)
-class OurEnv(BaseEnv):
+class Darkstore(BaseEnv):
     SUPPORTED_REWARD_MODES = ["none"]
     """
     This is just a very smart environment for goida transformation from ss
     """
     IMPORTED_SS_SCENE_SHIFT = np.array([CELL_SIZE / 2, CELL_SIZE / 2, 0])
 
-    def __init__(self, *args, robot_uids="panda", arena_config = None, **kwargs):
+    def __init__(self, *args, robot_uids="panda", arena_config = None, style_ids = 0, **kwargs):
+        self.style_ids = style_ids
         self.arena_config = arena_config
         super().__init__(*args, robot_uids=robot_uids, **kwargs)
 
@@ -89,7 +95,7 @@ class OurEnv(BaseEnv):
 
     def _load_scene(self, options: dict):
         self.scene_builder = EmptyRoomFromRobocasa(self, arena_config=self.arena_config)
-        self.scene_builder.build()
+        self.scene_builder.build(self.style_ids)
         self._load_scene_from_json(options)
 
 
@@ -192,7 +198,7 @@ class OurEnv(BaseEnv):
                 ]
             )
             self.agent.reset(qpos)
-            self.agent.robot.set_pose(sapien.Pose([1.0, 0, 0.0]))
+            self.agent.robot.set_pose(sapien.Pose([0.5, 0.5, 0.0]))
 
             # self.ground.set_collision_group_bit(
             #     group=2, bit_idx=FETCH_WHEELS_COLLISION_BIT, bit=1
@@ -207,9 +213,9 @@ class OurEnv(BaseEnv):
     def _get_obs_extra(self, info: Dict):
         return dict()
     
-arena_config = get_arena_config(x_cells=10, y_cells=5)
+arena_config = get_arena_config(x_cells=10, y_cells=5, height=4)
 
-env = gym.make(ENV_NAME, robot_uids='fetch', arena_config=arena_config, num_envs=1, render_mode="human", enable_shadow=True)
+env = gym.make(ENV_NAME, robot_uids='fetch', style_ids = [11], arena_config=arena_config, num_envs=1, render_mode="human", enable_shadow=True)
 
 
 # env = RecordEpisode(
