@@ -1,4 +1,5 @@
 from check import check_table, find_neibours
+
 import random
 
 
@@ -38,6 +39,7 @@ def add_one_product(
 ms = [[0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 0, 1], [0, 0, 1, 0]]
 # print(add_one_product((2, 1), (0, 3), ms, 2, 2))
 # print(ms)
+print(add_one_product((0, 0), (0, 0), [[0]], 1, 1))
 
 
 def get_rd_point(n: int, m: int):
@@ -72,6 +74,21 @@ def add_many_products(
                 mat[i][j] = id_to_name[mat[i][j] - 1]
 
     return (True, mat)
+
+
+def get_orientation(mat: list[list[int]]) -> list[list[bool]]:
+    n: int = len(mat)
+    m: int = len(mat[0])
+    mat_ops: list[list[bool]] = [[0 for j in range(m)] for i in range(n)]
+    for i in range(n):
+        for j in range(m):
+            for el in find_neibours((i, j), n, m):
+                if mat[el[0]][el[1]] == 0:
+                    if abs(el[0] - i) == 1:
+                        mat_ops[i][j] = 0
+                    else:
+                        mat_ops[i][j] = 1
+    return mat_ops
 
 
 ms = [
