@@ -23,6 +23,28 @@ from robocasa_scene_builder import EmptyRoomFromRobocasa
 
 ENV_NAME ="EmptyDarkstore"
 
+CELL_SIZE = 1.55
+
+def get_arena_config(x_cells=4, y_cells=5, height = 3):
+    x_xize = x_cells * CELL_SIZE
+    y_size = y_cells * CELL_SIZE
+    return {
+        'room': {
+            'walls': [
+                {'name': 'wall', 'type': 'wall', 'size': [x_xize / 2, height / 2, 0.02], 'pos': [x_xize / 2, y_size, height / 2]}, 
+                {'name': 'wall_backing', 'type': 'wall', 'backing': True, 'backing_extended': [True, False], 'size': [x_xize / 2, height / 2, 0.1], 'pos': [x_xize / 2, y_size, height / 2]}, 
+                {'name': 'wall_left', 'type': 'wall', 'wall_side': 'left', 'size': [y_size / 2, height / 2, 0.02], 'pos': [0, y_size / 2, height / 2]}, 
+                {'name': 'wall_left_backing', 'type': 'wall', 'wall_side': 'left', 'backing': True, 'size': [y_size / 2, height / 2, 0.1], 'pos': [0, y_size / 2, height / 2]}, 
+                {'name': 'wall_right', 'type': 'wall', 'wall_side': 'right', 'size': [y_size / 2, height / 2, 0.02], 'pos': [x_xize, y_size / 2, height / 2]}, 
+                {'name': 'wall_right_backing', 'type': 'wall', 'wall_side': 'right', 'backing': True, 'size': [y_size / 2, height / 2, 0.1], 'pos': [x_xize, y_size / 2, height / 2]}
+            ], 
+            'floor': [
+                {'name': 'floor', 'type': 'floor', 'size': [x_xize / 2, y_size / 2, 0.02], 'pos': [x_xize / 2, y_size / 2, 0.0]}, 
+                {'name': 'floor_backing', 'type': 'floor', 'backing': True, 'size': [x_xize / 2, y_size / 2, 0.1], 'pos': [x_xize / 2, y_size / 2, 0.0]}
+            ]
+        }
+    }
+
 @register_env(ENV_NAME, max_episode_steps=200000)
 class EmptyDarkstore(BaseEnv):
     SUPPORTED_REWARD_MODES = ["none"]
@@ -30,7 +52,8 @@ class EmptyDarkstore(BaseEnv):
     This is just a dummy environment for showcasing robots in a empty scene
     """
 
-    def __init__(self, *args, robot_uids="panda", **kwargs):
+    def __init__(self, *args, robot_uids="panda", arena_config = None, **kwargs):
+        self.arena_config = arena_config            
         super().__init__(*args, robot_uids=robot_uids, **kwargs)
 
     @property
@@ -47,7 +70,7 @@ class EmptyDarkstore(BaseEnv):
         super()._load_agent(options, sapien.Pose(p=[-0.615, 0, 0]))
 
     def _load_scene(self, options: dict):
-        self.scene_builder = EmptyRoomFromRobocasa(self)
+        self.scene_builder = EmptyRoomFromRobocasa(self, arena_config=self.arena_config)
         self.scene_builder.build()
         # self.fixtures = data["fixtures"]
         # self.actors = data["actors"]
@@ -101,9 +124,10 @@ class EmptyDarkstore(BaseEnv):
 
     def _get_obs_extra(self, info: Dict):
         return dict()
-    
 
-env = gym.make(ENV_NAME, robot_uids='fetch', num_envs=1, render_mode="human", enable_shadow=True)
+arena_config = get_arena_config(x_cells=4, y_cells=5)
+
+env = gym.make(ENV_NAME, robot_uids='fetch', num_envs=1, arena_config=arena_config, render_mode="human", enable_shadow=True)
 
 pose = sapien_utils.look_at([3.25, -3.25, 1.5], [0.0, 0.0, 0.2])
 env._default_human_render_camera_configs = CameraConfig("render_camera", pose, 2048, 2048, 1, 0.01, 100)
