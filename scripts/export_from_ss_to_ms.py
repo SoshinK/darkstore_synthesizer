@@ -9,7 +9,7 @@ from mani_skill.utils.registration import register_env
 from mani_skill.utils import common, sapien_utils
 import sapien
 from mani_skill.sensors.camera import CameraConfig
-
+import sys
 import os
 import json
 import numpy as np
@@ -21,6 +21,13 @@ from mani_skill.utils.wrappers import RecordEpisode
 from transforms3d import quaternions
 import random
 import string
+
+if len(sys.argv) < 3:
+    print("Использование: python script.py <путь_к_JSON_файлу> <путь_к_assets>")
+    sys.exit(1)
+
+json_file_path = sys.argv[1]
+assets_dir = sys.argv[2]
 
 def generate_random_string(length=10):
     characters = string.ascii_letters + string.digits
@@ -94,11 +101,10 @@ class OurEnv(BaseEnv):
         super()._load_scene(options)
         self.actors = []
 
-        assets_dir = options.get("assets_dir", "./assets/")
         scale = np.array(options.get("scale", [1.0, 1.0, 1.0]))
         origin = np.array(options.get("origin", [0.0, 1.0, 0.0]))
 
-        with open('customize.json', "r") as f: # big_scene , one_shelf_many_milk_scene , customize
+        with open(json_file_path, "r") as f: # big_scene , one_shelf_many_milk_scene , customize
             data = json.load(f)
 
         nodes_dict = {}
@@ -173,6 +179,7 @@ class OurEnv(BaseEnv):
 
     def _get_obs_extra(self, info: Dict):
         return dict()
+    
 
 
 env = gym.make(ENV_NAME, robot_uids='fetch', num_envs=1, render_mode="rgb_array", enable_shadow=True)
@@ -202,5 +209,3 @@ for i in tqdm(range(100)):
     env.render()
     # env.render_human() # will render with a window if possible
 env.close()
-from IPython.display import Video
-Video("./videos/0.mp4", embed=True, width=640)
