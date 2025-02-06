@@ -13,6 +13,7 @@ import os
 #CONST
 COUNT_OF_PRODUCT_ON_SHELF = 20
 BOARDS = 5
+COUNT_OF_PRODUCT_ON_BOARD = 35
 
 ASSETS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../models')
 
@@ -166,15 +167,6 @@ def try_shelf_placement(darkstore, is_rotate):
         shift_top=0.2288 + 0.05135 / 2
     )
 
-    obj_position_iterator = [
-        utils.PositionIteratorUniform(),
-        utils.PositionIteratorGaussian(params=[0, 0, 0.08, 0.08]),
-        utils.PositionIteratorPoissonDisk(k=30, r=0.1),
-        utils.PositionIteratorGrid(step_x=0.02, step_y=0.02, noise_std_x=0.04, noise_std_y=0.04),
-        utils.PositionIteratorGrid(step_x=0.05, step_y=0.005, noise_std_x=0.0, noise_std_y=0.0),
-        utils.PositionIteratorFarthestPoint(sample_count=1000),
-    ]
-
     cnt = 0
     for x in range(n):
         for y in range(m):
@@ -182,24 +174,46 @@ def try_shelf_placement(darkstore, is_rotate):
                 cnt += 1
                 continue
             if is_rotate[x][y]:
+            # if True:
                 scene.add_object(shelf, f'shelf{cnt}', transform=tra.translation_matrix((x * 1.55, y * 1.55, 0.0)))
             else:
                 scene.add_object(shelf, f'shelf{cnt}', transform=np.dot(tra.translation_matrix((x * 1.55, y * 1.55, 0.0)),
                                                                         tra.rotation_matrix(np.radians(90), [0, 0, 1])))
-            scene.label_support(f'support{cnt}', obj_ids=[f'shelf{cnt}'])
-            scene.place_objects(
-                obj_id_iterator=utils.object_id_generator(f"{darkstore[x][y]}{cnt}_"),
-                obj_asset_iterator=(NAMES_OF_PRODUCTS[darkstore[x][y]] for _ in range(COUNT_OF_PRODUCT_ON_SHELF)),
-                obj_support_id_iterator=scene.support_generator(f'support{cnt}'),
-                obj_position_iterator=obj_position_iterator[4],
-                obj_orientation_iterator=utils.orientation_generator_uniform_around_z(),
+            # scene.label_support(f'support{cnt}', obj_ids=[f'shelf{cnt}'])
+            support_data = scene.label_support(
+                label=f'support{cnt}',
+                obj_ids=[f'shelf{cnt}'],
+                min_area=0.05,
+                gravity=np.array([0, 0, -1]),
             )
+            for num_board in range(BOARDS):
+                scene.place_objects(
+                    obj_id_iterator=utils.object_id_generator(f"{darkstore[x][y]}{cnt}_{num_board}_"),
+                    obj_asset_iterator=(NAMES_OF_PRODUCTS[darkstore[x][y]] for _ in range(COUNT_OF_PRODUCT_ON_BOARD)),
+                    # obj_support_id_iterator=scene.support_generator(f'support{cnt}'),
+                    obj_support_id_iterator=utils.cycle_list(support_data, [num_board]),
+                    obj_position_iterator=utils.PositionIteratorGrid(step_x=0.2, step_y=0.1, noise_std_x=0.01, noise_std_y=0.01, direction='x'),
+                    obj_orientation_iterator=utils.orientation_generator_uniform_around_z(),
+                )
             cnt += 1
 
     scene.colorize()
     scene.colorize(specific_objects={f'shelf{i}': [123, 123, 123] for i in cells})
 
-    scene.show()
+    # scene.show()
+    json_str = synth.exchange.export.export_json(scene, include_metadata=False)
+
+    data = json.loads(json_str)
+    del data["geometry"]
+    data['meta'] = {
+        'n': n,
+        'm': m
+    }
+
+    with open(f'myscene_{n}_{m}.json', 'w') as f:
+        # f.write(json_str)
+        json.dump(data, f, indent=4)
+
 
 if __name__ == '__main__':
     n, m = map(int, input('Room sizes like "N M":\n').split())
