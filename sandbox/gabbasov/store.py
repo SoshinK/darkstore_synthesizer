@@ -11,12 +11,15 @@ import trimesh
 import os
 
 #CONST
-COUNT_OF_MILK_ON_BOARD = 10
+COUNT_OF_PRODUCT_ON_SHELF = 20
 BOARDS = 5
-NAMES_OF_PRODUCTS = ('milk', 'cans')
-
-#ITERATORS
-iter_of_milks = 0
+NAMES_OF_PRODUCTS = {'milk' : synth.assets.MeshAsset(
+        f'{os.path.abspath(__file__)}/../../../models/milk.glb',
+        scale=1.1, origin=("com", "com", "bottom"),),
+                    'cereal' : synth.assets.MeshAsset(
+        f'{os.path.abspath(__file__)}/../../../models/cbs3.glb',
+        scale=1, origin=("com", "com", "bottom"),),
+        }
 
 class UserError(Exception):
     pass
@@ -124,9 +127,14 @@ class MyShelfAsset(TrimeshSceneAsset):
         super().__init__(scene=scene, **kwargs)
 
 
-def try_shelf_placement():
+def try_shelf_placement(darkstore):
+    n, m = len(darkstore), len(darkstore[0])
+    cells = []
+    for i in range(n):
+        for j in range(m):
+            if room[i][j]:
+                cells.append(i * m + j)
     scene = synth.Scene()
-    global iter_of_milks
     shelf = MyShelfAsset(
         width=1.517,
         depth=0.5172,
@@ -141,19 +149,6 @@ def try_shelf_placement():
         shift_top=0.2288 + 0.05135 / 2
     )
 
-    scene.add_object(shelf, 'shelf')
-
-    support_data = scene.label_support(
-        label="support",
-        min_area=0.05,
-        gravity=np.array([0, 0, -1]),
-    )
-    milk = synth.assets.MeshAsset(
-        f'{os.path.abspath(__file__)}/../milk.glb',
-        scale=1.1,
-        origin=("com", "com", "bottom"),
-    )
-
     obj_position_iterator = [
         utils.PositionIteratorUniform(),
         utils.PositionIteratorGaussian(params=[0, 0, 0.08, 0.08]),
@@ -164,43 +159,31 @@ def try_shelf_placement():
     ]
 
     cnt = 0
-    for x in range(3):
-        for y in range(2):
-            scene.add_object(shelf, f'table{cnt}', transform=tra.translation_matrix((x * 1.5, y * 1.5, 0.0)))
-            scene.label_support(f'support{cnt}', obj_ids=[f'table{cnt}'])
+    for x in range(n):
+        for y in range(m):
+            if not room[x][y]:
+                cnt += 1
+                continue
+            if y in [0, m - 1]:
+                scene.add_object(shelf, f'shelf{cnt}', transform=tra.translation_matrix((x * 1.55, y * 1.55, 0.0)))
+            else:
+                scene.add_object(shelf, f'shelf{cnt}', transform=np.dot(tra.translation_matrix((x * 1.55, y * 1.55, 0.0)),
+                                                                        tra.rotation_matrix(np.radians(90), [0, 0, 1])))
+            scene.label_support(f'support{cnt}', obj_ids=[f'shelf{cnt}'])
             scene.place_objects(
-                obj_id_iterator=utils.object_id_generator(f"Mug{cnt}_"),
-                obj_asset_iterator=(milk for _ in range(20)),
+                obj_id_iterator=utils.object_id_generator(f"{room[x][y]}{cnt}_"),
+                obj_asset_iterator=(NAMES_OF_PRODUCTS[room[x][y]] for _ in range(COUNT_OF_PRODUCT_ON_SHELF)),
                 obj_support_id_iterator=scene.support_generator(f'support{cnt}'),
-                obj_position_iterator=obj_position_iterator[cnt],
+                obj_position_iterator=obj_position_iterator[0],
                 obj_orientation_iterator=utils.orientation_generator_uniform_around_z(),
             )
             cnt += 1
 
-    # for num in range(BOARDS):
-    #     for i in range(COUNT_OF_MILK_ON_BOARD):
-    #         scene.place_object(
-    #             obj_id=f"milk_{i + iter_of_milks}",
-    #             obj_support_id_iterator=utils.cycle_list(support_data, [num]),
-    #             obj_asset=milk,
-    #             support_id='support',
-    #             obj_orientation_iterator=utils.orientation_generator_uniform_around_z(),
-    #             obj_position_iterator=obj_position_iterator[4],
-    #         )
-    #     iter_of_milks += COUNT_OF_MILK_ON_BOARD
 
-    json_str = synth.exchange.export.export_json(scene, include_metadata=False)
+    scene.colorize(specific_objects={f'shelf{i}': [123, 123, 123] for i in cells})
+    #scene.colorize()
 
-    with open('shelf.json', 'w') as f:
-        # f.write(json_str)
-        json.dump(json.loads(json_str), f, indent=4)
-
-    scene.colorize()
     scene.show()
-
-# orientation_generator_const
-# orientation_generator_stable_poses
-# orientation_generator_uniform_around_z
 
 if __name__ == '__main__':
     n, m = map(int, input('Room sizes like "N M":\n').split())
@@ -214,7 +197,7 @@ if __name__ == '__main__':
             mat[i] = [int(x) for x in s]
 
     name_to_cnt = {}
-    for i, name in enumerate(NAMES_OF_PRODUCTS):
+    for i, name in enumerate(NAMES_OF_PRODUCTS.keys()):
         count = int(input(f'Write count of {name}:\n'))
         name_to_cnt[name] = count
     is_gen, room = add_many_products((x, y), mat, name_to_cnt)
@@ -222,4 +205,4 @@ if __name__ == '__main__':
     if not is_gen:
         raise UserError('retry to generate a scene')
 
-    try_shelf_placement()
+    try_shelf_placement(room)
