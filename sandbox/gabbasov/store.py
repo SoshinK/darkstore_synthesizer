@@ -3,7 +3,7 @@ import scene_synthesizer as synth
 from scene_synthesizer import procedural_assets as pa
 from scene_synthesizer import procedural_scenes as ps
 from scene_synthesizer.assets import TrimeshSceneAsset
-from scene_generator import add_many_products
+from scene_generator import add_many_products, get_orientation
 from scene_synthesizer import utils
 import trimesh.transformations as tra
 import json
@@ -13,13 +13,30 @@ import os
 #CONST
 COUNT_OF_PRODUCT_ON_SHELF = 20
 BOARDS = 5
-NAMES_OF_PRODUCTS = {'milk' : synth.assets.MeshAsset(
-        f'{os.path.abspath(__file__)}/../../../models/milk.glb',
-        scale=1.1, origin=("com", "com", "bottom"),),
-                    'cereal' : synth.assets.MeshAsset(
-        f'{os.path.abspath(__file__)}/../../../models/cbs3.glb',
-        scale=1, origin=("com", "com", "bottom"),),
-        }
+
+ASSETS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../models')
+
+with open(f'{ASSETS_PATH}/assets.json', 'r') as f:
+    assets_config = json.load(f)
+
+asset_type_mapping = {
+    "MeshAsset": synth.assets.MeshAsset,
+    "USDAsset": synth.assets.USDAsset,
+}
+
+NAMES_OF_PRODUCTS = {}
+
+for name, params in assets_config.items():
+    asset_type_str = params.pop('asset_type')
+    asset_constructor = asset_type_mapping.get(asset_type_str)
+    if asset_constructor is None:
+        raise ValueError(f"Unknown asset type: {asset_type_str}")
+
+    file_path = os.path.join(ASSETS_PATH, params.pop('filename'))
+
+    asset_obj = asset_constructor(file_path, **params)
+
+    NAMES_OF_PRODUCTS[name] = asset_obj
 
 class UserError(Exception):
     pass
@@ -127,12 +144,12 @@ class MyShelfAsset(TrimeshSceneAsset):
         super().__init__(scene=scene, **kwargs)
 
 
-def try_shelf_placement(darkstore):
+def try_shelf_placement(darkstore, is_rotate):
     n, m = len(darkstore), len(darkstore[0])
     cells = []
     for i in range(n):
         for j in range(m):
-            if room[i][j]:
+            if darkstore[i][j]:
                 cells.append(i * m + j)
     scene = synth.Scene()
     shelf = MyShelfAsset(
@@ -154,34 +171,33 @@ def try_shelf_placement(darkstore):
         utils.PositionIteratorGaussian(params=[0, 0, 0.08, 0.08]),
         utils.PositionIteratorPoissonDisk(k=30, r=0.1),
         utils.PositionIteratorGrid(step_x=0.02, step_y=0.02, noise_std_x=0.04, noise_std_y=0.04),
-        utils.PositionIteratorGrid(step_x=0.2, step_y=0.02, noise_std_x=0.0, noise_std_y=0.0),
+        utils.PositionIteratorGrid(step_x=0.05, step_y=0.005, noise_std_x=0.0, noise_std_y=0.0),
         utils.PositionIteratorFarthestPoint(sample_count=1000),
     ]
 
     cnt = 0
     for x in range(n):
         for y in range(m):
-            if not room[x][y]:
+            if not darkstore[x][y]:
                 cnt += 1
                 continue
-            if y in [0, m - 1]:
+            if is_rotate[x][y]:
                 scene.add_object(shelf, f'shelf{cnt}', transform=tra.translation_matrix((x * 1.55, y * 1.55, 0.0)))
             else:
                 scene.add_object(shelf, f'shelf{cnt}', transform=np.dot(tra.translation_matrix((x * 1.55, y * 1.55, 0.0)),
                                                                         tra.rotation_matrix(np.radians(90), [0, 0, 1])))
             scene.label_support(f'support{cnt}', obj_ids=[f'shelf{cnt}'])
             scene.place_objects(
-                obj_id_iterator=utils.object_id_generator(f"{room[x][y]}{cnt}_"),
-                obj_asset_iterator=(NAMES_OF_PRODUCTS[room[x][y]] for _ in range(COUNT_OF_PRODUCT_ON_SHELF)),
+                obj_id_iterator=utils.object_id_generator(f"{darkstore[x][y]}{cnt}_"),
+                obj_asset_iterator=(NAMES_OF_PRODUCTS[darkstore[x][y]] for _ in range(COUNT_OF_PRODUCT_ON_SHELF)),
                 obj_support_id_iterator=scene.support_generator(f'support{cnt}'),
-                obj_position_iterator=obj_position_iterator[0],
+                obj_position_iterator=obj_position_iterator[4],
                 obj_orientation_iterator=utils.orientation_generator_uniform_around_z(),
             )
             cnt += 1
 
-
+    scene.colorize()
     scene.colorize(specific_objects={f'shelf{i}': [123, 123, 123] for i in cells})
-    #scene.colorize()
 
     scene.show()
 
@@ -202,7 +218,9 @@ if __name__ == '__main__':
         name_to_cnt[name] = count
     is_gen, room = add_many_products((x, y), mat, name_to_cnt)
 
+    is_rotate = get_orientation((x, y), room)
+
     if not is_gen:
         raise UserError('retry to generate a scene')
 
-    try_shelf_placement(room)
+    try_shelf_placement(room, is_rotate)

@@ -1,4 +1,5 @@
 from scene_check import check_table, find_neibours
+from collections import deque
 import random
 
 
@@ -74,6 +75,33 @@ def add_many_products(
     return (True, mat)
 
 
+def get_orientation(door: tuple[int, int], mat: list[list[int]]) -> list[list[bool]]:
+    n: int = len(mat)
+    m: int = len(mat[0])
+    had: deque = deque()
+    dst: list[list[int]] = [[1e10] * len(mat[0]) for c in range(n)]
+    if mat[door[0]][door[1]] != 0:
+        return False
+    dst[door[0]][door[1]] = 0
+    had.append(door)
+    while len(had):
+        v: int = had.popleft()
+        for el in find_neibours(v, n, m):
+            if mat[el[0]][el[1]] == 0 and dst[el[0]][el[1]] != 0:
+                had.append(el)
+                dst[el[0]][el[1]] = 0
+    mat_ops: list[list[bool]] = [[0 for j in range(m)] for i in range(n)]
+    for i in range(n):
+        for j in range(m):
+            for el in find_neibours((i, j), n, m):
+                if dst[el[0]][el[1]] == 0:
+                    if abs(el[0] - i) == 1:
+                        mat_ops[i][j] = 0
+                    else:
+                        mat_ops[i][j] = 1
+    return mat_ops
+
+
 ms = [
     [0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0],
@@ -87,6 +115,3 @@ tr = [[0 for j in range(7)] for i in range(7)]
 
 my_food = {1: 2, 2: 2, 3: 2, 4: 3, 5: 2, 6: 1, 7: 2, 8: 3, 9: 3}
 (a, b) = add_many_products((0, 0), tr, my_food)
-# print(a)
-# for el in b:
-#     print(el)
