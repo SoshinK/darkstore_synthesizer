@@ -1,7 +1,7 @@
 # Darkstore Synthesizer v.0
 
 ## Описание  
-**Darkstore Synthesizer** – это проект по симулированию и автоматизации работы даркстора. Основан на использовании библиотек [ManiSkill](https://github.com/haosulab/ManiSkill) и [scene_synthesizer](https://github.com/NVlabs/scene_synthesizer).
+**Darkstore Synthesizer** – это проект по симулированию и автоматизации работы даркстора. Основан на использовании библиотек ManiSkill и scene_synthesizer.
 
 ## Что готово уже сейчас?
 За кадром проведено очень много работы. Вот те вещи, которые можно пощупать:
