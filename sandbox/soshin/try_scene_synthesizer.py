@@ -4,6 +4,12 @@ from scene_synthesizer import procedural_assets as pa
 from scene_synthesizer import procedural_scenes as ps
 from scene_synthesizer import utils
 import trimesh.transformations as tra
+
+import logging
+from scene_synthesizer.utils import log
+log.setLevel(logging.DEBUG)
+
+
 import json 
 def try1():
     table = pa.TableAsset(
@@ -458,7 +464,7 @@ def try_shelf_placement():
         min_area=0.05,
         gravity=np.array([0, 0, -1]),
     )
-    # print(support_data)
+    print(support_data)
     # print("====")
     # print(scene.metadata["support_polygons"])
     milk = synth.assets.MeshAsset(
@@ -532,5 +538,137 @@ def try_shelf_placement():
     scene.show()
 
 
+def import_shelf():
+    my_scene = synth.Scene()
+
+    table_scene = pa.TableAsset(1.0, 1.4, 0.7).scene('table')
+    table_scene.label_support(label="support")
+
+    shelf = synth.assets.MeshAsset(
+        '/home/kvsoshin/Work/AIRI/3d_assets/metal_shelf_-_5mb_processed.glb',
+        scale=1.,
+        origin=("com", "com", "bottom"),
+    )
+    milk = synth.assets.MeshAsset(
+        '/home/kvsoshin/Work/AIRI/3d_assets/milk_karton_processed.glb',
+        scale=1,
+        origin=("com", "com", "bottom"),
+    )
+    # my_scene.add_object(
+    #     asset=milk,
+    #     obj_id="milk",
+    # )
+    my_scene.add_object(
+        asset=shelf,
+        obj_id="shelf",
+    )
+
+    # my_scene.show()
+    # exit()
+    
+    support_data = my_scene.label_support(
+        label="support",
+        min_area=0.05,
+        erosion_distance=2,
+        gravity=np.array([0, 0, -1]),
+    )
+    print(support_data)
+    my_scene.show_supports()
+    # my_scene.show()
+
+
+    id_iterator = utils.cycle_list(support_data, [3])
+    for i in range(10):
+        my_scene.place_object(
+            obj_id=f"milk_1{i}",
+            obj_support_id_iterator=id_iterator,
+            obj_asset=milk,
+            support_id='support',
+            obj_orientation_iterator=utils.orientation_generator_uniform_around_z(),
+            obj_position_iterator=utils.PositionIteratorGrid(step_x=0.02, step_y=0.02, noise_std_x=0.04, noise_std_y=0.04),
+        )
+    my_scene.show()
+
+
+def import_cbs():
+    my_scene = synth.Scene()
+
+    table_scene = pa.TableAsset(1.0, 1.4, 0.7).scene('table')
+    table_scene.label_support(label="support")
+
+    cbs = synth.assets.MeshAsset(
+        '/home/kvsoshin/Work/AIRI/3d_assets/cbs3.glb',
+        scale=1.,
+        origin=("com", "com", "bottom"),
+    )
+    my_scene.add_object(
+        asset=cbs,
+        obj_id="cbs",
+    )
+    
+
+    # my_scene.show_supports()
+    
+    my_scene.show()
+
+
+def many_placements_yog():
+    table_scene = pa.TableAsset(1.0, 1.4, 0.7).scene('table')
+    table_scene.label_support(label="support")
+
+    # yog = synth.assets.MeshAsset(
+    #     '/home/kvsoshin/Work/AIRI/3d_assets/_____juccy_processed.glb',
+    #     # '/home/kvsoshin/Work/AIRI/3d_assets/cbs3.glb',
+    #     scale=1.0,
+    #     origin=("com", "com", "bottom"),
+    # )
+    # yog = synth.assets.MJCFAsset(
+    yog = synth.assets.USDAsset(
+        # '/home/kvsoshin/.maniskill/data/scene_datasets/robocasa_dataset/assets/objects/objaverse/apple/apple_0/model.xml',
+        '/home/kvsoshin/Work/AIRI/3d_assets/ImageToStl.com_milk_processed.usdc',
+        scale=1.0,
+        origin=("com", "com", "bottom"),
+        reference_only=False
+    )
+
+    glb = synth.assets.Asset(
+        '/home/kvsoshin/Work/AIRI/3d_assets/milk_processed.glb',
+        # '/home/kvsoshin/Work/AIRI/3d_assets/ImageToStl.com______juccy_processed.usdc',
+        scale=1.0,
+        origin=("com", "com", "bottom"),
+        reference_only=False
+    )
+
+    for i in range(60):
+        table_scene.place_object(
+            obj_id=f"yog{i}",
+            obj_asset=yog,
+            support_id="support",
+            obj_orientation_iterator=utils.orientation_generator_uniform_around_z(),
+            obj_position_iterator=utils.PositionIteratorGrid(step_x=0.1, step_y=0.1, noise_std_x=0.0, noise_std_y=0.0, direction='y'),
+            debug=False
+        )
+
+    # table_scene.colorize()
+    table_scene.show()
+
+def load_xml():
+    scene = synth.Scene()
+
+    xml = synth.assets.MJCFAsset(
+        '/home/kvsoshin/.maniskill/data/scene_datasets/robocasa_dataset/assets/objects/objaverse/apple/apple_0/model.xml',
+        # '/home/kvsoshin/Work/AIRI/3d_assets/ImageToStl.com______juccy_processed.usdc',
+        scale=1.0,
+        origin=("com", "com", "bottom"),
+        reference_only=False
+    )
+
+    scene.add_object(
+        asset=xml,
+        obj_id="xml",
+        transform=np.eye(4),
+    )
+    scene.show()
+
 if __name__ == '__main__':
-    try_shelf_placement()
+    many_placements_yog()
