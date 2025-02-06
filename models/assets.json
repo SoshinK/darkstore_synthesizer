@@ -1,0 +1,38 @@
+{
+  "milk": {
+    "asset_type": "MeshAsset",
+    "filename": "milk.glb",
+    "scale": 1.1,
+    "origin": ["com", "com", "bottom"]
+  },
+  "cereal": {
+    "asset_type": "MeshAsset",
+    "filename": "cereals.glb",
+    "scale": 1,
+    "origin": ["com", "com", "bottom"]
+  },
+  "coke": {
+    "asset_type": "USDAsset",
+    "filename": "coke.usdc",
+    "scale": 1,
+    "origin": ["com", "com", "bottom"]
+  },
+  "baby": {
+    "asset_type": "USDAsset",
+    "filename": "baby.usdc",
+    "scale": 1,
+    "origin": ["com", "com", "bottom"]
+  },
+  "banana": {
+    "asset_type": "USDAsset",
+    "filename": "banana.usdc",
+    "scale": 1.5,
+    "origin": ["com", "com", "bottom"]
+  },
+  "CokeBottle": {
+    "asset_type": "USDAsset",
+    "filename": "CokeBottle.usdc",
+    "scale": 0.9,
+    "origin": ["com", "com", "bottom"]
+  }
+}
