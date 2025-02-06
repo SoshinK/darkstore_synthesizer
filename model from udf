@@ -1,0 +1,36 @@
+import gymnasium as gym
+import numpy as np
+import sapien
+
+from mani_skill.envs.sapien_env import BaseEnv
+from mani_skill.utils import gym_utils
+from mani_skill.utils.wrappers import RecordEpisode
+
+
+import tyro
+from dataclasses import dataclass
+from typing import List, Optional, Annotated, Union
+
+
+def _load_scene3(self, options: dict):
+    super()._load_scene(options)
+    builder = self.scene.create_actor_builder()
+    builder.add_convex_collision_from_file(
+        filename="/home/kvsoshin/Work/AIRI/scene_synthesizer/shit_urdf/shit.urdf",
+        scale=(
+            0.4,
+            0.4,
+            0.4,
+        ),
+    )
+    builder = self.scene.create_actor_builder()
+    builder.add_visual_from_file(
+        filename="/home/kvsoshin/Work/AIRI/scene_synthesizer/shit_urdf/shit.urdf",
+        scale=(
+            0.4,
+            0.4,
+            0.4,
+        ),
+    )
+    builder.set_initial_pose(sapien.Pose(p=[-0.3, 0.3, 1.0 + 0.05]))
+    self.mesh = builder.build_static(name="mesh")
