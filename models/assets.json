@@ -34,5 +34,11 @@
     "filename": "CokeBottle.usdc",
     "scale": 0.9,
     "origin": ["com", "com", "bottom"]
+  },
+  "cerealsForSS": {
+    "asset_type": "MeshAsset",
+    "filename": "cerealsForSS.glb",
+    "scale": 1,
+    "origin": ["com", "com", "bottom"]
   }
 }
