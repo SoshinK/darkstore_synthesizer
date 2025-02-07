@@ -11,9 +11,9 @@ import trimesh
 import os
 
 # CONST
-COUNT_OF_PRODUCT_ON_SHELF = 1
+COUNT_OF_PRODUCT_ON_SHELF = 2
 BOARDS = 5
-COUNT_OF_PRODUCT_ON_BOARD = 1
+COUNT_OF_PRODUCT_ON_BOARD = 2
 
 ASSETS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../models")
 
@@ -219,7 +219,9 @@ def add_objects_to_shelf(
         )
 
 
-def try_shelf_placement(darkstore, is_rotate):
+def try_shelf_placement(
+        darkstore: list[list],
+        is_rotate: list[list]):
     n, m = len(darkstore), len(darkstore[0])
     cells = []
     for i in range(n):
@@ -268,8 +270,74 @@ def try_shelf_placement(darkstore, is_rotate):
         json.dump(data, f, indent=4)
 
 
+def try_one_shelf_placement_with(products_on_boards: list[list]):
+    scene = synth.Scene()
+    shelf = DefaultShelf
+    support_data = set_shelf(
+        scene,
+        shelf,
+        0,
+        0,
+        False,
+        f"shelf",
+        f"support",
+    )
+    add_objects_to_shelf(
+        scene,
+        BOARDS,
+        products_on_boards,
+        'try',
+        COUNT_OF_PRODUCT_ON_BOARD,
+        support_data,
+    )
+    scene.colorize()
+    scene.show()
+
+def try_one_shelf_placement_with_diff_of_one_board(
+    set_of_products_on_each_boards: list[tuple],
+    suf: str = 'diff'
+    ):
+    scene = synth.Scene()
+    shelf = DefaultShelf
+    support_data = set_shelf(
+        scene,
+        shelf,
+        0,
+        0,
+        False,
+        f"shelf",
+        f"support",
+    )
+    for num_board in range(BOARDS):
+        scene.place_objects(
+            obj_id_iterator=utils.object_id_generator(
+                f"products_" + suf + f"_{num_board}_"
+            ),
+            obj_asset_iterator=set_of_products_on_each_boards[num_board],
+            # obj_support_id_iterator=scene.support_generator(f'support{cnt}'),
+            obj_support_id_iterator=utils.cycle_list(support_data, [num_board]),
+            obj_position_iterator=utils.PositionIteratorGrid(
+                step_x=0.2,
+                step_y=0.1,
+                noise_std_x=0.01,
+                noise_std_y=0.01,
+                direction="x",
+            ),
+            obj_orientation_iterator=utils.orientation_generator_uniform_around_z(),
+        )
+    scene.colorize()
+    scene.show()
+
 if __name__ == "__main__":
 
+    if False: # example to get shelf with different type products
+        # try_one_shelf_placement_with(['milk', 'cerealsForSS', 'coke', 'baby', 'milk'])
+        try_one_shelf_placement_with_diff_of_one_board(
+            [(NAMES_OF_PRODUCTS['milk'], NAMES_OF_PRODUCTS['coke']),
+            (NAMES_OF_PRODUCTS['baby'], NAMES_OF_PRODUCTS['cerealsForSS']),
+            (NAMES_OF_PRODUCTS['milk'], NAMES_OF_PRODUCTS['coke']),
+            (NAMES_OF_PRODUCTS['baby'], NAMES_OF_PRODUCTS['cerealsForSS']),
+            (NAMES_OF_PRODUCTS['milk'], NAMES_OF_PRODUCTS['coke'])])
     with open("models/input.json", "r") as f:
         data = json.load(f)
 
