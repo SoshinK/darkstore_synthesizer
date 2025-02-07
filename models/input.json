@@ -1,0 +1,20 @@
+{
+    "room_size": [5, 5],
+    "door_coords": [0, 0],
+    "blocked_matrix": [
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0]
+    ],
+    "products": {
+        "milk": 2,
+        "coke": 2,
+        "baby": 2,
+        "banana": 2,
+        "CokeBottle": 1,
+        "cereal": 0,
+        "cerealsForSS": 1
+    }
+}

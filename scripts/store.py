@@ -15,7 +15,7 @@ COUNT_OF_PRODUCT_ON_SHELF = 20
 BOARDS = 5
 COUNT_OF_PRODUCT_ON_BOARD = 20
 
-ASSETS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../models')
+ASSETS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../models')
 
 with open(f'{ASSETS_PATH}/assets.json', 'r') as f:
     assets_config = json.load(f)
