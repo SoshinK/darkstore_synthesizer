@@ -22,17 +22,17 @@ from transforms3d import quaternions
 import random
 import string
 
-if len(sys.argv) < 3:
-    print("Использование: python script.py <путь_к_JSON_файлу> <путь_к_assets>")
-    sys.exit(1)
+parser = argparse.ArgumentParser(
+    description="Запуск сцены: <путь_к_JSON_файлу_сцены> <путь_к_assets> [--mapping_file <путь_к_JSON_файлу_c_названиями_текстур>]"
+)
+parser.add_argument("json_file", help="Путь к JSON файлу сцены")
+parser.add_argument("assets_dir", help="Путь к директории с ассетами")
+parser.add_argument("--mapping_file", help="Путь к JSON файлу с сопоставлением obj_name и конкретных asset_file", default=None)
+args = parser.parse_args()
 
-json_file_path = sys.argv[1]
-assets_dir = sys.argv[2]
-
-def generate_random_string(length=10):
-    characters = string.ascii_letters + string.digits
-    return ''.join(random.choice(characters) for _ in range(length))
-
+json_file_path = args.json_file
+assets_dir = args.assets_dir
+mapping_file = args.mapping_file
 
 ENV_NAME = generate_random_string()
 
@@ -101,15 +101,21 @@ class OurEnv(BaseEnv):
         super()._load_scene(options)
         self.actors = []
 
+        assets_dir = options.get("assets_dir", "./assets/")
         scale = np.array(options.get("scale", [1.0, 1.0, 1.0]))
         origin = np.array(options.get("origin", [0.0, 1.0, 0.0]))
 
-        with open(json_file_path, "r") as f: # big_scene , one_shelf_many_milk_scene , customize
+        with open('2_shelf_2_milk.json', "r") as f:
             data = json.load(f)
 
         nodes_dict = {}
         for node in data["graph"]:
             nodes_dict[node[1]] = node
+
+        asset_mapping = {}
+        if mapping_file is not None:
+            with open(mapping_file, "r") as f:
+                asset_mapping = json.load(f)
 
         for node in data["graph"]:
             parent_name, obj_name, props = node
@@ -118,7 +124,17 @@ class OurEnv(BaseEnv):
 
                 p, q = self._get_pq(abs_matrix, origin)
 
-                asset_file = os.path.join(assets_dir, self._temp_process_string(obj_name))
+                obj_name_to_check = self._temp_process_string(obj_name)[:-4]
+
+                if obj_name_to_check in asset_mapping:
+                    asset_file = os.path.join(assets_dir, asset_mapping[obj_name_to_check])
+                else:
+                    asset_file = ""
+
+
+                if not os.path.exists(asset_file):
+                    asset_file = os.path.join(assets_dir, self._temp_process_string(obj_name))
+
                 if not os.path.exists(asset_file):
                     asset_file = os.path.splitext(asset_file)[0] + ".glb"
 
@@ -129,6 +145,8 @@ class OurEnv(BaseEnv):
                     builder = self.scene.create_actor_builder()
                     builder.add_visual_from_file(filename=asset_file, scale=scale)
                     builder.set_initial_pose(sapien.Pose(p=p, q=q))
+
+
 
                     if obj_name.startswith('shelf'):
                         builder.add_nonconvex_collision_from_file(filename=asset_file, scale=scale)
@@ -179,7 +197,8 @@ class OurEnv(BaseEnv):
 
     def _get_obs_extra(self, info: Dict):
         return dict()
-    
+
+
 
 
 env = gym.make(ENV_NAME, robot_uids='fetch', num_envs=1, render_mode="rgb_array", enable_shadow=True)
