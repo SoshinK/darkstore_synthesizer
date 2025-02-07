@@ -32,6 +32,7 @@ darkstore_synthesizer/
 │── check.py         # Валидация
 │── gen.py           # Генерация объектов
 │── README.md        # Описание проекта
+│── scenes/        # Сцены для экспорта в ManiSkill
 ```
 
 ## Галерея
