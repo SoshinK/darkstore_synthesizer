@@ -37,7 +37,7 @@ darkstore_synthesizer/
 
 ## Галерея
 Все изображения и видео можно найти в папке [«Галерея»](https://github.com/SoshinK/darkstore_synthesizer/tree/main/gallery).
-![Шкафы](gallery/Shelfs3.jpg)
+![Шкафы](gallery/Shelfs6.jpg)
 ![Работа с едой](gallery/ModelsOfFood.jpg)
 
 ## Авторы  
