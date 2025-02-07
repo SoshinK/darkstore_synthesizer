@@ -11,9 +11,9 @@ import trimesh
 import os
 
 # CONST
-COUNT_OF_PRODUCT_ON_SHELF = 20
+COUNT_OF_PRODUCT_ON_SHELF = 1
 BOARDS = 5
-COUNT_OF_PRODUCT_ON_BOARD = 20
+COUNT_OF_PRODUCT_ON_BOARD = 1
 
 ASSETS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../models")
 
@@ -189,6 +189,36 @@ def set_shelf(
     return support_data
 
 
+def add_objects_to_shelf(
+    scene,
+    cnt_boards: int,
+    product_on_board: list[str],
+    suf: str,
+    cnt_prod_on_board: int,
+    support_data,
+):
+    for num_board in range(cnt_boards):
+        scene.place_objects(
+            obj_id_iterator=utils.object_id_generator(
+                f"{product_on_board[num_board]}" + suf + f"_{num_board}_"
+            ),
+            obj_asset_iterator=(
+                NAMES_OF_PRODUCTS[product_on_board[num_board]]
+                for _ in range(cnt_prod_on_board)
+            ),
+            # obj_support_id_iterator=scene.support_generator(f'support{cnt}'),
+            obj_support_id_iterator=utils.cycle_list(support_data, [num_board]),
+            obj_position_iterator=utils.PositionIteratorGrid(
+                step_x=0.2,
+                step_y=0.1,
+                noise_std_x=0.01,
+                noise_std_y=0.01,
+                direction="x",
+            ),
+            obj_orientation_iterator=utils.orientation_generator_uniform_around_z(),
+        )
+
+
 def try_shelf_placement(darkstore, is_rotate):
     n, m = len(darkstore), len(darkstore[0])
     cells = []
@@ -213,26 +243,14 @@ def try_shelf_placement(darkstore, is_rotate):
                 f"shelf{cnt}",
                 f"support{cnt}",
             )
-            for num_board in range(BOARDS):
-                scene.place_objects(
-                    obj_id_iterator=utils.object_id_generator(
-                        f"{darkstore[x][y]}{cnt}_{num_board}_"
-                    ),
-                    obj_asset_iterator=(
-                        NAMES_OF_PRODUCTS[darkstore[x][y]]
-                        for _ in range(COUNT_OF_PRODUCT_ON_BOARD)
-                    ),
-                    # obj_support_id_iterator=scene.support_generator(f'support{cnt}'),
-                    obj_support_id_iterator=utils.cycle_list(support_data, [num_board]),
-                    obj_position_iterator=utils.PositionIteratorGrid(
-                        step_x=0.2,
-                        step_y=0.1,
-                        noise_std_x=0.01,
-                        noise_std_y=0.01,
-                        direction="x",
-                    ),
-                    obj_orientation_iterator=utils.orientation_generator_uniform_around_z(),
-                )
+            add_objects_to_shelf(
+                scene,
+                BOARDS,
+                [darkstore[x][y]] * BOARDS,
+                str(cnt),
+                COUNT_OF_PRODUCT_ON_BOARD,
+                support_data,
+            )
             cnt += 1
 
     scene.colorize()
