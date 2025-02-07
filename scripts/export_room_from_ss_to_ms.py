@@ -24,7 +24,7 @@ import string
 from robocasa_scene_builder import EmptyRoomFromRobocasa
 
 if len(sys.argv) < 4:
-    print("Использование: python script.py <путь_к_JSON_файлу> <путь_к_assets> <style id (0-11)>")
+    print("Использование: python script.py <путь_к_JSON_файлу> <путь_к_assets> <style id (0-11)> <mapping_file>")
     sys.exit(1)
 
 json_file_path = sys.argv[1]
@@ -148,11 +148,10 @@ class DarkstoreEnv(BaseEnv):
         super()._load_scene(options)
         self.actors = []
 
-        assets_dir = options.get("assets_dir", "./assets/")
         scale = np.array(options.get("scale", [1.0, 1.0, 1.0]))
         origin = np.array(options.get("origin", [0.0, 1.0, 0.0]))
 
-        with open('2_shelf_2_milk.json', "r") as f:
+        with open(json_file_path, "r") as f:
             data = json.load(f)
 
         nodes_dict = {}
@@ -252,16 +251,16 @@ n = data['meta']['n']
 m = data['meta']['m']
 arena_data = get_arena_data(x_cells=n, y_cells=m, height=4)
 
-env = gym.make(ENV_NAME, robot_uids='fetch', style_ids = [style_id], num_envs=1, render_mode="rgb_array", enable_shadow=True, **arena_data)
+env = gym.make(ENV_NAME, robot_uids='fetch', style_ids = [style_id], num_envs=1, render_mode="human", enable_shadow=True, **arena_data)
 
 
-env = RecordEpisode(
-    env,
-    f"./videos_{n}_{m}_style{style_id}", # the directory to save replay videos and trajectories to
-    # on GPU sim we record intervals, not by single episodes as there are multiple envs
-    # each 100 steps a new video is saved
-    max_steps_per_video=100
-)
+# env = RecordEpisode(
+#     env,
+#     f"./videos_{n}_{m}_style{style_id}", # the directory to save replay videos and trajectories to
+#     # on GPU sim we record intervals, not by single episodes as there are multiple envs
+#     # each 100 steps a new video is saved
+#     max_steps_per_video=100
+# )
 
 # step through the environment with random actions
 obs, _ = env.reset()
@@ -273,7 +272,7 @@ if isinstance(viewer, sapien.utils.Viewer):
 env.render()
 
 
-for i in tqdm(range(10)):
+for i in tqdm(range(100000)):
     action = env.action_space.sample()
     obs, reward, terminated, truncated, info = env.step(torch.zeros_like(torch.from_numpy(action)))
 
