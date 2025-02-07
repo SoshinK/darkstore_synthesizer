@@ -21,6 +21,8 @@ from mani_skill.utils.wrappers import RecordEpisode
 from transforms3d import quaternions
 import random
 import string
+import argparse
+
 
 parser = argparse.ArgumentParser(
     description="Запуск сцены: <путь_к_JSON_файлу_сцены> <путь_к_assets> [--mapping_file <путь_к_JSON_файлу_c_названиями_текстур>]"
@@ -33,6 +35,11 @@ args = parser.parse_args()
 json_file_path = args.json_file
 assets_dir = args.assets_dir
 mapping_file = args.mapping_file
+
+def generate_random_string(length=10):
+    characters = string.ascii_letters + string.digits
+    return ''.join(random.choice(characters) for _ in range(length))
+
 
 ENV_NAME = generate_random_string()
 
