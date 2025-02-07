@@ -30,14 +30,13 @@ darkstore_synthesizer/
 │── sandbox/         # Рабочие папки
 │── gallery/         # Галерея
 │── scenes/          # Сцены для экспорта в ManiSkill
-│── check.py         # Валидация
-│── gen.py           # Генерация объектов
 │── README.md        # Описание проекта
 ```
 
 ## Галерея
 Все изображения и видео можно найти в папке [«Галерея»](https://github.com/SoshinK/darkstore_synthesizer/tree/main/gallery).
-![Шкафы](gallery/Shelfs6.jpg)
+
+![Шкафы](gallery/Shelfs6.png)
 ![Работа с едой](gallery/ModelsOfFood.jpg)
 
 ## Авторы  
