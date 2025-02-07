@@ -200,7 +200,7 @@ def add_objects_to_shelf(
     for num_board in range(cnt_boards):
         scene.place_objects(
             obj_id_iterator=utils.object_id_generator(
-                f"{product_on_board[num_board]}" + suf + f"_{num_board}_"
+                f"{product_on_board[num_board]}_" + suf + f"_{num_board}_"
             ),
             obj_asset_iterator=(
                 NAMES_OF_PRODUCTS[product_on_board[num_board]]
