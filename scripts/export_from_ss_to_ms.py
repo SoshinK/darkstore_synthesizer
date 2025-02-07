@@ -22,22 +22,17 @@ from transforms3d import quaternions
 import random
 import string
 
-if len(sys.argv) < 3:
-    print("Использование: python script.py <путь_к_JSON_файлу_сцены> <путь_к_assets> (optional): <путь_к_JSON_файлу_c_названиями_текстур>")
-    sys.exit(1)
+parser = argparse.ArgumentParser(
+    description="Запуск сцены: <путь_к_JSON_файлу_сцены> <путь_к_assets> [--mapping_file <путь_к_JSON_файлу_c_названиями_текстур>]"
+)
+parser.add_argument("json_file", help="Путь к JSON файлу сцены")
+parser.add_argument("assets_dir", help="Путь к директории с ассетами")
+parser.add_argument("--mapping_file", help="Путь к JSON файлу с сопоставлением obj_name и конкретных asset_file", default=None)
+args = parser.parse_args()
 
-
-json_file_path = sys.argv[1]
-assets_dir = sys.argv[2]
-mapping_file = None
-
-if len(sys.argv) > 3:
-    mapping_file = sys.argv[3]
-
-def generate_random_string(length=10):
-    characters = string.ascii_letters + string.digits
-    return ''.join(random.choice(characters) for _ in range(length))
-
+json_file_path = args.json_file
+assets_dir = args.assets_dir
+mapping_file = args.mapping_file
 
 ENV_NAME = generate_random_string()
 
