@@ -108,11 +108,10 @@ class OurEnv(BaseEnv):
         super()._load_scene(options)
         self.actors = []
 
-        assets_dir = options.get("assets_dir", "./assets/")
         scale = np.array(options.get("scale", [1.0, 1.0, 1.0]))
         origin = np.array(options.get("origin", [0.0, 1.0, 0.0]))
 
-        with open('2_shelf_2_milk.json', "r") as f:
+        with open(json_file_path, "r") as f:
             data = json.load(f)
 
         nodes_dict = {}

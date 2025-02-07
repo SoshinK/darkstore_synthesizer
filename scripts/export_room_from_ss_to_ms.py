@@ -22,17 +22,22 @@ from transforms3d import quaternions
 import random
 import string
 from robocasa_scene_builder import EmptyRoomFromRobocasa
+import argparse
 
-if len(sys.argv) < 4:
-    print("Использование: python script.py <путь_к_JSON_файлу> <путь_к_assets> <style id (0-11)> <mapping_file>")
-    sys.exit(1)
+parser = argparse.ArgumentParser(
+    description="Использование: python script.py <путь_к_JSON_файлу> <путь_к_assets> <style id (0-11)> [mapping_file]"
+)
+parser.add_argument("json_file_path", help="Путь к JSON файлу")
+parser.add_argument("assets_dir", help="Путь к assets")
+parser.add_argument("style_id", type=int, help="Style id (0-11)")
+parser.add_argument("mapping_file", nargs="?", default=None, help="Путь к mapping_file (опционально)")
 
-json_file_path = sys.argv[1]
-assets_dir = sys.argv[2]
-style_id = int(sys.argv[3])
+args = parser.parse_args()
 
-if len(sys.argv) > 4:
-    mapping_file = sys.argv[4]
+json_file_path = args.json_file_path
+assets_dir = args.assets_dir
+style_id = args.style_id
+mapping_file = args.mapping_file
 
 def generate_random_string(length=10):
     characters = string.ascii_letters + string.digits
