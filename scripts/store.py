@@ -10,14 +10,14 @@ import json
 import trimesh
 import os
 
-#CONST
+# CONST
 COUNT_OF_PRODUCT_ON_SHELF = 20
 BOARDS = 5
 COUNT_OF_PRODUCT_ON_BOARD = 20
 
-ASSETS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../models')
+ASSETS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../models")
 
-with open(f'{ASSETS_PATH}/assets.json', 'r') as f:
+with open(f"{ASSETS_PATH}/assets.json", "r") as f:
     assets_config = json.load(f)
 
 asset_type_mapping = {
@@ -28,39 +28,41 @@ asset_type_mapping = {
 NAMES_OF_PRODUCTS = {}
 
 for name, params in assets_config.items():
-    asset_type_str = params.pop('asset_type')
+    asset_type_str = params.pop("asset_type")
     asset_constructor = asset_type_mapping.get(asset_type_str)
     if asset_constructor is None:
         raise ValueError(f"Unknown asset type: {asset_type_str}")
 
-    file_path = os.path.join(ASSETS_PATH, params.pop('filename'))
+    file_path = os.path.join(ASSETS_PATH, params.pop("filename"))
 
     asset_obj = asset_constructor(file_path, **params)
 
     NAMES_OF_PRODUCTS[name] = asset_obj
 
+
 class UserError(Exception):
     pass
+
 
 class MyShelfAsset(TrimeshSceneAsset):
     """A shelf asset."""
 
     def __init__(
-            self,
-            width,
-            depth,
-            height,
-            num_boards,
-            board_thickness=0.03,
-            backboard_thickness=0.0,
-            num_vertical_boards=0,
-            num_side_columns=2,
-            column_thickness=0.03,
-            bottom_board=True,
-            cylindrical_columns=True,
-            shift_bottom=0.0,
-            shift_top=0.0,
-            **kwargs,
+        self,
+        width,
+        depth,
+        height,
+        num_boards,
+        board_thickness=0.03,
+        backboard_thickness=0.0,
+        num_vertical_boards=0,
+        num_side_columns=2,
+        column_thickness=0.03,
+        bottom_board=True,
+        cylindrical_columns=True,
+        shift_bottom=0.0,
+        shift_top=0.0,
+        **kwargs,
     ):
         boards = []
         board_names = []
@@ -72,13 +74,15 @@ class MyShelfAsset(TrimeshSceneAsset):
                 ),
             )
             boards.append(back)
-            board_names.append('back')
+            board_names.append("back")
 
         min_z = +float("inf")
         max_z = -float("inf")
         cnt = 0
         for h in np.linspace(
-                shift_bottom + board_thickness / 2.0, height - board_thickness / 2.0 - shift_top, num_boards
+            shift_bottom + board_thickness / 2.0,
+            height - board_thickness / 2.0 - shift_top,
+            num_boards,
         ):
             if h == shift_bottom + board_thickness / 2.0 and not bottom_board:
                 continue
@@ -100,7 +104,9 @@ class MyShelfAsset(TrimeshSceneAsset):
             boards.append(
                 trimesh.primitives.Box(
                     extents=[board_thickness, depth, max_z - min_z],
-                    transform=tra.translation_matrix([v, 0, min_z + (max_z - min_z) / 2.0]),
+                    transform=tra.translation_matrix(
+                        [v, 0, min_z + (max_z - min_z) / 2.0]
+                    ),
                 )
             )
             board_names.append(f"separator_{cnt}")
@@ -145,6 +151,44 @@ class MyShelfAsset(TrimeshSceneAsset):
         super().__init__(scene=scene, **kwargs)
 
 
+DefaultShelf = MyShelfAsset(
+    width=1.517,
+    depth=0.5172,
+    height=2.0,
+    board_thickness=0.05135,
+    num_boards=BOARDS,
+    num_side_columns=2,
+    bottom_board=True,
+    cylindrical_columns=False,
+    num_vertical_boards=0,
+    shift_bottom=0.131952 - 0.05135 / 2,
+    shift_top=0.2288 + 0.05135 / 2,
+)
+
+
+def set_shelf(
+    scene, shelf, x: float, y: float, rotation: bool, name: str, support_name: str
+):
+    if not (rotation):
+        scene.add_object(
+            shelf,
+            name,
+            transform=np.dot(
+                tra.translation_matrix((x, y, 0.0)),
+                tra.rotation_matrix(np.radians(90), [0, 0, 1]),
+            ),
+        )
+    else:
+        scene.add_object(shelf, name, transform=tra.translation_matrix((x, y, 0.0)))
+    support_data = scene.label_support(
+        label=support_name,
+        obj_ids=[name],
+        min_area=0.05,
+        gravity=np.array([0, 0, -1]),
+    )
+    return support_data
+
+
 def try_shelf_placement(darkstore, is_rotate):
     n, m = len(darkstore), len(darkstore[0])
     cells = []
@@ -153,71 +197,62 @@ def try_shelf_placement(darkstore, is_rotate):
             if darkstore[i][j]:
                 cells.append(i * m + j)
     scene = synth.Scene()
-    shelf = MyShelfAsset(
-        width=1.517,
-        depth=0.5172,
-        height=2.0,
-        board_thickness=0.05135,
-        num_boards=BOARDS,
-        num_side_columns=2,
-        bottom_board=True,
-        cylindrical_columns=False,
-        num_vertical_boards=0,
-        shift_bottom=0.131952 - 0.05135 / 2,
-        shift_top=0.2288 + 0.05135 / 2
-    )
-
+    shelf = DefaultShelf
     cnt = 0
     for x in range(n):
         for y in range(m):
             if not darkstore[x][y]:
                 cnt += 1
                 continue
-            if is_rotate[x][y]:
-            # if True:
-                scene.add_object(shelf, f'shelf{cnt}', transform=tra.translation_matrix((x * 1.55, y * 1.55, 0.0)))
-            else:
-                scene.add_object(shelf, f'shelf{cnt}', transform=np.dot(tra.translation_matrix((x * 1.55, y * 1.55, 0.0)),
-                                                                        tra.rotation_matrix(np.radians(90), [0, 0, 1])))
-            # scene.label_support(f'support{cnt}', obj_ids=[f'shelf{cnt}'])
-            support_data = scene.label_support(
-                label=f'support{cnt}',
-                obj_ids=[f'shelf{cnt}'],
-                min_area=0.05,
-                gravity=np.array([0, 0, -1]),
+            support_data = set_shelf(
+                scene,
+                shelf,
+                x * 1.55,
+                y * 1.55,
+                is_rotate[x][y],
+                f"shelf{cnt}",
+                f"support{cnt}",
             )
             for num_board in range(BOARDS):
                 scene.place_objects(
-                    obj_id_iterator=utils.object_id_generator(f"{darkstore[x][y]}{cnt}_{num_board}_"),
-                    obj_asset_iterator=(NAMES_OF_PRODUCTS[darkstore[x][y]] for _ in range(COUNT_OF_PRODUCT_ON_BOARD)),
+                    obj_id_iterator=utils.object_id_generator(
+                        f"{darkstore[x][y]}{cnt}_{num_board}_"
+                    ),
+                    obj_asset_iterator=(
+                        NAMES_OF_PRODUCTS[darkstore[x][y]]
+                        for _ in range(COUNT_OF_PRODUCT_ON_BOARD)
+                    ),
                     # obj_support_id_iterator=scene.support_generator(f'support{cnt}'),
                     obj_support_id_iterator=utils.cycle_list(support_data, [num_board]),
-                    obj_position_iterator=utils.PositionIteratorGrid(step_x=0.2, step_y=0.1, noise_std_x=0.01, noise_std_y=0.01, direction='x'),
+                    obj_position_iterator=utils.PositionIteratorGrid(
+                        step_x=0.2,
+                        step_y=0.1,
+                        noise_std_x=0.01,
+                        noise_std_y=0.01,
+                        direction="x",
+                    ),
                     obj_orientation_iterator=utils.orientation_generator_uniform_around_z(),
                 )
             cnt += 1
 
     scene.colorize()
-    scene.colorize(specific_objects={f'shelf{i}': [123, 123, 123] for i in cells})
+    scene.colorize(specific_objects={f"shelf{i}": [123, 123, 123] for i in cells})
 
     scene.show()
     json_str = synth.exchange.export.export_json(scene, include_metadata=False)
 
     data = json.loads(json_str)
     del data["geometry"]
-    data['meta'] = {
-        'n': n,
-        'm': m
-    }
+    data["meta"] = {"n": n, "m": m}
 
-    with open(f'myscene_{n}_{m}.json', 'w') as f:
+    with open(f"myscene_{n}_{m}.json", "w") as f:
         # f.write(json_str)
         json.dump(data, f, indent=4)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    with open('models/input.json', 'r') as f:
+    with open("models/input.json", "r") as f:
         data = json.load(f)
 
     n, m = data["room_size"]
@@ -230,6 +265,6 @@ if __name__ == '__main__':
     is_rotate = get_orientation((x, y), room)
 
     if not is_gen:
-        raise UserError('retry to generate a scene')
+        raise UserError("retry to generate a scene")
 
     try_shelf_placement(room, is_rotate)
