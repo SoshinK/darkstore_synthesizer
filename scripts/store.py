@@ -223,7 +223,8 @@ def add_objects_to_shelf(
 def try_shelf_placement(
         darkstore: list[list],
         is_rotate: list[list],
-        random_shelfs: list[list[list]]):
+        random_shelfs: list[list[list]],
+        is_showed: bool = False):
     n, m = len(darkstore), len(darkstore[0])
     cells = []
     for i in range(n):
@@ -259,10 +260,10 @@ def try_shelf_placement(
             cnt += 1
             it += 1
 
-    scene.colorize()
-    scene.colorize(specific_objects={f"shelf{i}": [123, 123, 123] for i in cells})
-
-    scene.show()
+    if is_showed:
+        scene.colorize()
+        scene.colorize(specific_objects={f"shelf{i}": [123, 123, 123] for i in cells})
+        scene.show()
     json_str = synth.exchange.export.export_json(scene, include_metadata=False)
 
     data = json.loads(json_str)
@@ -339,6 +340,11 @@ if __name__ == "__main__":
         default="models/input.json",
         help="Путь к JSON-файлу с входными данными (по умолчанию: models/input.json)"
     )
+    parser.add_argument(
+        "--show",
+        action="store_true",
+        help="Показать сцену после обработки"
+    )
 
     args = parser.parse_args()
 
@@ -357,4 +363,4 @@ if __name__ == "__main__":
     if not is_gen:
         raise UserError("retry to generate a scene")
 
-    try_shelf_placement(room, is_rotate, data['random_shelfs'])
+    try_shelf_placement(room, is_rotate, data['random_shelfs'], args.show)
