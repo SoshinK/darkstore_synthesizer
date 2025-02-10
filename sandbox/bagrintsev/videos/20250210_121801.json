@@ -1,0 +1,27 @@
+{
+  "env_info": {
+    "env_id": "054lM3DmPP",
+    "env_kwargs": {
+      "robot_uids": "fetch",
+      "num_envs": 1,
+      "render_mode": "rgb_array",
+      "enable_shadow": true
+    },
+    "max_episode_steps": 200000
+  },
+  "commit_info": {
+    "commit_id": "4f911729d8c8ade976e7a9dd967677c714628729",
+    "branch": "main"
+  },
+  "episodes": [
+    {
+      "episode_id": 0,
+      "episode_seed": 2022,
+      "control_mode": "pd_joint_delta_pos",
+      "elapsed_steps": 100,
+      "reset_kwargs": {
+        "options": {}
+      }
+    }
+  ]
+}
