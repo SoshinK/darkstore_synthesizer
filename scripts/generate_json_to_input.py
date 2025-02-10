@@ -17,7 +17,7 @@ with open('models/assets.json', 'r') as f:
 if isinstance(assets, dict):
     assets = list(assets.keys())
 
-del assets[assets.index('cerealsForSS')]
+del assets[assets.index('cereal')]
 
 shelfs = []
 for i in range(COUNT_OF_SHELFS):
