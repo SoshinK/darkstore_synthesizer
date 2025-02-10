@@ -47,372 +47,372 @@
     "random_shelfs": [
         [
             [
-                "baby",
-                "coke",
-                "CokeBottle",
-                "cereal",
-                "banana"
-            ],
-            [
+                "cerealsForSS",
                 "banana",
-                "cereal",
                 "CokeBottle",
                 "milk",
-                "baby"
-            ],
-            [
-                "cereal",
-                "coke",
-                "CokeBottle",
-                "milk",
-                "banana"
-            ],
-            [
-                "coke",
-                "CokeBottle",
-                "banana",
-                "baby",
-                "milk"
-            ],
-            [
-                "milk",
-                "baby",
-                "banana",
-                "CokeBottle",
-                "cereal"
-            ]
-        ],
-        [
-            [
-                "milk",
-                "cereal",
-                "banana",
-                "CokeBottle",
-                "baby"
-            ],
-            [
-                "baby",
-                "CokeBottle",
-                "cereal",
-                "coke",
-                "milk"
-            ],
-            [
-                "baby",
-                "coke",
-                "cereal",
-                "CokeBottle",
-                "banana"
-            ],
-            [
-                "CokeBottle",
-                "coke",
-                "milk",
-                "cereal",
-                "banana"
-            ],
-            [
-                "coke",
-                "cereal",
-                "CokeBottle",
-                "banana",
-                "milk"
-            ]
-        ],
-        [
-            [
-                "banana",
-                "cereal",
-                "coke",
-                "CokeBottle",
-                "milk"
-            ],
-            [
-                "banana",
-                "cereal",
-                "milk",
-                "baby",
                 "coke"
             ],
             [
+                "coke",
                 "baby",
+                "banana",
+                "cerealsForSS",
+                "milk"
+            ],
+            [
                 "coke",
                 "banana",
-                "cereal",
+                "CokeBottle",
+                "milk",
+                "cerealsForSS"
+            ],
+            [
+                "cerealsForSS",
+                "CokeBottle",
+                "coke",
+                "baby",
+                "milk"
+            ],
+            [
+                "baby",
+                "milk",
+                "banana",
+                "coke",
+                "cerealsForSS"
+            ]
+        ],
+        [
+            [
+                "cerealsForSS",
+                "baby",
+                "milk",
+                "CokeBottle",
+                "banana"
+            ],
+            [
+                "coke",
+                "banana",
+                "cerealsForSS",
+                "CokeBottle",
+                "milk"
+            ],
+            [
+                "CokeBottle",
+                "milk",
+                "banana",
+                "coke",
+                "cerealsForSS"
+            ],
+            [
+                "CokeBottle",
+                "milk",
+                "coke",
+                "baby",
+                "banana"
+            ],
+            [
+                "milk",
+                "banana",
+                "coke",
+                "CokeBottle",
+                "baby"
+            ]
+        ],
+        [
+            [
+                "CokeBottle",
+                "cerealsForSS",
+                "coke",
+                "milk",
+                "banana"
+            ],
+            [
+                "banana",
+                "coke",
+                "milk",
+                "cerealsForSS",
+                "baby"
+            ],
+            [
+                "banana",
+                "CokeBottle",
+                "cerealsForSS",
+                "coke",
+                "baby"
+            ],
+            [
+                "baby",
+                "milk",
+                "cerealsForSS",
+                "CokeBottle",
+                "coke"
+            ],
+            [
+                "milk",
+                "baby",
+                "coke",
+                "CokeBottle",
+                "banana"
+            ]
+        ],
+        [
+            [
+                "cerealsForSS",
+                "coke",
+                "milk",
+                "CokeBottle",
+                "baby"
+            ],
+            [
+                "milk",
+                "coke",
+                "banana",
+                "cerealsForSS",
+                "baby"
+            ],
+            [
+                "cerealsForSS",
+                "milk",
+                "coke",
+                "baby",
                 "CokeBottle"
             ],
             [
+                "coke",
                 "milk",
                 "banana",
-                "cereal",
                 "baby",
+                "cerealsForSS"
+            ],
+            [
+                "milk",
+                "CokeBottle",
+                "cerealsForSS",
+                "banana",
+                "coke"
+            ]
+        ],
+        [
+            [
+                "CokeBottle",
+                "milk",
+                "baby",
+                "banana",
                 "coke"
             ],
             [
                 "baby",
                 "milk",
-                "cereal",
                 "CokeBottle",
+                "coke",
                 "banana"
-            ]
-        ],
-        [
-            [
-                "milk",
-                "coke",
-                "CokeBottle",
-                "cereal",
-                "banana"
-            ],
-            [
-                "coke",
-                "milk",
-                "cereal",
-                "banana",
-                "CokeBottle"
-            ],
-            [
-                "cereal",
-                "banana",
-                "coke",
-                "CokeBottle",
-                "baby"
             ],
             [
                 "baby",
+                "banana",
+                "cerealsForSS",
                 "CokeBottle",
-                "coke",
-                "cereal",
-                "banana"
+                "milk"
             ],
             [
+                "banana",
                 "milk",
+                "baby",
+                "coke",
+                "cerealsForSS"
+            ],
+            [
                 "CokeBottle",
                 "banana",
                 "baby",
-                "cereal"
+                "milk",
+                "cerealsForSS"
             ]
         ],
         [
             [
                 "baby",
                 "CokeBottle",
-                "cereal",
-                "milk",
-                "banana"
-            ],
-            [
-                "baby",
                 "coke",
-                "CokeBottle",
-                "milk",
-                "cereal"
-            ],
-            [
-                "cereal",
-                "coke",
-                "baby",
-                "CokeBottle",
-                "banana"
-            ],
-            [
-                "CokeBottle",
-                "baby",
-                "cereal",
                 "banana",
+                "milk"
+            ],
+            [
+                "cerealsForSS",
+                "CokeBottle",
+                "banana",
+                "milk",
                 "coke"
             ],
             [
-                "CokeBottle",
-                "cereal",
-                "milk",
-                "baby",
-                "banana"
-            ]
-        ],
-        [
-            [
                 "baby",
                 "milk",
-                "coke",
-                "cereal",
+                "cerealsForSS",
+                "banana",
                 "CokeBottle"
             ],
             [
                 "CokeBottle",
                 "milk",
-                "cereal",
-                "banana",
-                "baby"
-            ],
-            [
-                "coke",
-                "banana",
-                "milk",
-                "cereal",
-                "baby"
-            ],
-            [
-                "coke",
-                "CokeBottle",
-                "milk",
                 "baby",
-                "cereal"
+                "cerealsForSS",
+                "coke"
             ],
             [
-                "baby",
                 "banana",
-                "coke",
                 "CokeBottle",
-                "milk"
+                "coke",
+                "milk",
+                "cerealsForSS"
             ]
         ],
         [
             [
                 "milk",
-                "cereal",
+                "baby",
                 "CokeBottle",
                 "coke",
-                "baby"
+                "banana"
             ],
             [
-                "cereal",
-                "milk",
-                "CokeBottle",
-                "baby",
-                "coke"
-            ],
-            [
+                "coke",
                 "CokeBottle",
                 "banana",
-                "baby",
+                "milk",
+                "cerealsForSS"
+            ],
+            [
+                "banana",
+                "CokeBottle",
                 "coke",
+                "cerealsForSS",
                 "milk"
             ],
             [
-                "CokeBottle",
+                "banana",
                 "coke",
                 "baby",
-                "milk",
-                "cereal"
+                "cerealsForSS",
+                "milk"
             ],
             [
-                "coke",
-                "milk",
+                "baby",
                 "banana",
-                "CokeBottle",
-                "baby"
+                "milk",
+                "coke",
+                "cerealsForSS"
             ]
         ],
         [
             [
-                "banana",
                 "baby",
                 "milk",
-                "coke",
-                "CokeBottle"
-            ],
-            [
-                "milk",
                 "banana",
-                "cereal",
-                "coke",
-                "baby"
-            ],
-            [
-                "milk",
-                "baby",
-                "CokeBottle",
-                "banana",
-                "cereal"
-            ],
-            [
-                "milk",
-                "baby",
-                "cereal",
-                "banana",
-                "coke"
-            ],
-            [
-                "banana",
-                "coke",
-                "CokeBottle",
-                "baby",
-                "milk"
-            ]
-        ],
-        [
-            [
-                "cereal",
-                "milk",
-                "CokeBottle",
-                "baby",
-                "coke"
-            ],
-            [
-                "coke",
-                "CokeBottle",
-                "cereal",
-                "banana",
-                "milk"
-            ],
-            [
-                "coke",
-                "baby",
-                "cereal",
-                "banana",
-                "milk"
-            ],
-            [
-                "banana",
-                "milk",
-                "baby",
                 "coke",
                 "CokeBottle"
             ],
             [
+                "CokeBottle",
+                "cerealsForSS",
+                "banana",
                 "baby",
-                "cereal",
+                "milk"
+            ],
+            [
+                "baby",
                 "milk",
+                "CokeBottle",
+                "banana",
+                "cerealsForSS"
+            ],
+            [
+                "banana",
                 "coke",
-                "banana"
+                "CokeBottle",
+                "cerealsForSS",
+                "baby"
+            ],
+            [
+                "milk",
+                "CokeBottle",
+                "coke",
+                "banana",
+                "baby"
             ]
         ],
         [
             [
+                "baby",
+                "cerealsForSS",
                 "CokeBottle",
+                "milk",
+                "coke"
+            ],
+            [
+                "coke",
+                "banana",
+                "milk",
+                "cerealsForSS",
+                "baby"
+            ],
+            [
                 "banana",
                 "baby",
-                "coke",
-                "cereal"
+                "cerealsForSS",
+                "milk",
+                "CokeBottle"
             ],
             [
                 "milk",
+                "cerealsForSS",
+                "banana",
+                "coke",
+                "CokeBottle"
+            ],
+            [
                 "CokeBottle",
                 "banana",
+                "milk",
+                "baby",
+                "coke"
+            ]
+        ],
+        [
+            [
+                "banana",
+                "milk",
+                "baby",
+                "cerealsForSS",
+                "CokeBottle"
+            ],
+            [
+                "banana",
+                "cerealsForSS",
+                "baby",
+                "coke",
+                "CokeBottle"
+            ],
+            [
+                "cerealsForSS",
+                "CokeBottle",
+                "coke",
+                "baby",
+                "banana"
+            ],
+            [
+                "CokeBottle",
+                "banana",
+                "milk",
                 "coke",
                 "baby"
             ],
             [
-                "baby",
-                "CokeBottle",
-                "banana",
                 "coke",
-                "cereal"
-            ],
-            [
-                "CokeBottle",
-                "milk",
-                "cereal",
-                "baby",
-                "coke"
-            ],
-            [
-                "baby",
-                "cereal",
                 "banana",
                 "milk",
-                "coke"
+                "baby",
+                "cerealsForSS"
             ]
         ]
     ]
