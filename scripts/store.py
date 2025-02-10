@@ -363,4 +363,8 @@ if __name__ == "__main__":
     if not is_gen:
         raise UserError("retry to generate a scene")
 
+<<<<<<< HEAD
     try_shelf_placement(room, is_rotate, data['random_shelfs'], args.show)
+=======
+    try_shelf_placement(room, is_rotate, data['random_shelfs'], args.show)
+>>>>>>> 81621a5 (Storing actors in the scene dictionary)
