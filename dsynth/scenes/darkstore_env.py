@@ -209,6 +209,7 @@ class DarkstoreEnv(BaseEnv):
 
 
     def _initialize_episode(self, env_idx: torch.Tensor, options: dict):
+        
         if self.robot_uids == "fetch":
             qpos = np.array(
                 [
@@ -231,7 +232,7 @@ class DarkstoreEnv(BaseEnv):
             )
             self.agent.reset(qpos)
             self.agent.robot.set_pose(sapien.Pose([0.5, 0.5, 0.0]))
-        if self.robot_uids == "panda":
+        elif self.robot_uids == "panda":
             qpos = np.array(
                 [
                     0.0,        
