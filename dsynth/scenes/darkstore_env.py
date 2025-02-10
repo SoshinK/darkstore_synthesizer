@@ -21,7 +21,7 @@ from mani_skill.utils.wrappers import RecordEpisode
 from transforms3d import quaternions
 import random
 import string
-from robocasaroom import RoomFromRobocasa
+from .robocasaroom import RoomFromRobocasa
 
 CELL_SIZE = 1.55
 DEFAULT_ASSETS_DIR = 'models'
@@ -150,7 +150,7 @@ class DarkstoreEnv(BaseEnv):
         self.actors = []
 
         scale = np.array(options.get("scale", [1.0, 1.0, 1.0]))
-        origin = np.array(options.get("origin", [0.0, 1.0, 0.0]))
+        origin = - self.IMPORTED_SS_SCENE_SHIFT#np.array(options.get("origin", [0.0, 1.0, 0.0]))
 
         with open(self.json_file_path, "r") as f:
             data = json.load(f)
