@@ -7,6 +7,8 @@ from scene_generator import add_many_products, get_orientation
 from scene_synthesizer import utils
 import trimesh.transformations as tra
 import json
+import sys
+import argparse
 import trimesh
 import os
 
@@ -192,7 +194,7 @@ def set_shelf(
 def add_objects_to_shelf(
     scene,
     cnt_boards: int,
-    product_on_board: list[str],
+    product_on_board: list[list],
     suf: str,
     cnt_prod_on_board: int,
     support_data,
@@ -200,12 +202,9 @@ def add_objects_to_shelf(
     for num_board in range(cnt_boards):
         scene.place_objects(
             obj_id_iterator=utils.object_id_generator(
-                f"{product_on_board[num_board]}_" + suf + f"_{num_board}_"
+                f"products_" + suf + f"_{num_board}_"
             ),
-            obj_asset_iterator=(
-                NAMES_OF_PRODUCTS[product_on_board[num_board]]
-                for _ in range(cnt_prod_on_board)
-            ),
+            obj_asset_iterator=(NAMES_OF_PRODUCTS[val] for val in product_on_board[num_board]),
             # obj_support_id_iterator=scene.support_generator(f'support{cnt}'),
             obj_support_id_iterator=utils.cycle_list(support_data, [num_board]),
             obj_position_iterator=utils.PositionIteratorGrid(
@@ -221,7 +220,8 @@ def add_objects_to_shelf(
 
 def try_shelf_placement(
         darkstore: list[list],
-        is_rotate: list[list]):
+        is_rotate: list[list],
+        random_shelfs: list[list[list]]):
     n, m = len(darkstore), len(darkstore[0])
     cells = []
     for i in range(n):
@@ -231,6 +231,7 @@ def try_shelf_placement(
     scene = synth.Scene()
     shelf = DefaultShelf
     cnt = 0
+    it = 0
     for x in range(n):
         for y in range(m):
             if not darkstore[x][y]:
@@ -248,12 +249,13 @@ def try_shelf_placement(
             add_objects_to_shelf(
                 scene,
                 BOARDS,
-                [darkstore[x][y]] * BOARDS,
+                random_shelfs[it],
                 str(cnt),
                 COUNT_OF_PRODUCT_ON_BOARD,
                 support_data,
             )
             cnt += 1
+            it += 1
 
     scene.colorize()
     scene.colorize(specific_objects={f"shelf{i}": [123, 123, 123] for i in cells})
@@ -329,23 +331,23 @@ def try_one_shelf_placement_with_diff_of_one_board(
     scene.show()
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Запуск генерации сцены")
+    parser.add_argument(
+        "--input",
+        default="models/input.json",
+        help="Путь к JSON-файлу с входными данными (по умолчанию: models/input.json)"
+    )
 
-    if False: # example to get shelf with different type products
-        # try_one_shelf_placement_with(['milk', 'cerealsForSS', 'coke', 'baby', 'milk'])
-        try_one_shelf_placement_with_diff_of_one_board(
-            [(NAMES_OF_PRODUCTS['milk'], NAMES_OF_PRODUCTS['coke']),
-            (NAMES_OF_PRODUCTS['baby'], NAMES_OF_PRODUCTS['cerealsForSS']),
-            (NAMES_OF_PRODUCTS['milk'], NAMES_OF_PRODUCTS['coke']),
-            (NAMES_OF_PRODUCTS['baby'], NAMES_OF_PRODUCTS['cerealsForSS']),
-            (NAMES_OF_PRODUCTS['milk'], NAMES_OF_PRODUCTS['coke'])])
-    with open("models/input.json", "r") as f:
+    args = parser.parse_args()
+
+    with open(args.input, "r") as f:
         data = json.load(f)
 
     n, m = data["room_size"]
     x, y = data["door_coords"]
 
     mat = data.get("blocked_matrix", [[0] * m for _ in range(n)])
-    name_to_cnt = data.get("products", {})
+    name_to_cnt = {'milk': 5, 'baby': 3, 'cereal': 2}
 
     is_gen, room = add_many_products((x, y), mat, name_to_cnt)
     is_rotate = get_orientation((x, y), room)
@@ -353,4 +355,4 @@ if __name__ == "__main__":
     if not is_gen:
         raise UserError("retry to generate a scene")
 
-    try_shelf_placement(room, is_rotate)
+    try_shelf_placement(room, is_rotate, data['random_shelfs'])
