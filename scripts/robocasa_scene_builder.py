@@ -32,7 +32,7 @@ from transforms3d.euler import euler2quat
 import json
 from transforms3d import quaternions
 
-class EmptyRoomFromRobocasa(RoboCasaSceneBuilder):
+class RoomFromRobocasa(RoboCasaSceneBuilder):
     def __init__(self, *args, arena_config=None, **kwargs):
         self.arena_config = arena_config
         super().__init__(*args, **kwargs)
