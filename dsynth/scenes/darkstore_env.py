@@ -231,7 +231,23 @@ class DarkstoreEnv(BaseEnv):
             )
             self.agent.reset(qpos)
             self.agent.robot.set_pose(sapien.Pose([0.5, 0.5, 0.0]))
-
+        if self.robot_uids == "panda":
+            qpos = np.array(
+                [
+                    0.0,        
+                    -np.pi / 6, 
+                    0.0,        
+                    -np.pi / 3, 
+                    0.0,        
+                    np.pi / 2,  
+                    np.pi / 4,  
+                    0.04,       
+                    0.04,       
+                ]
+            )
+            self.agent.reset(qpos)
+            self.agent.robot.set_pose(sapien.Pose([0.0, 0.0, 0.0]))
+            
         else:
             raise NotImplementedError
 
