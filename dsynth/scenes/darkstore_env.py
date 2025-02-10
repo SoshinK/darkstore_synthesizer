@@ -21,7 +21,7 @@ from mani_skill.utils.wrappers import RecordEpisode
 from transforms3d import quaternions
 import random
 import string
-from dsynth.scenes.robocasaroom import RoomFromRobocasa
+from robocasaroom import RoomFromRobocasa
 
 CELL_SIZE = 1.55
 DEFAULT_ASSETS_DIR = 'models'
@@ -75,6 +75,15 @@ class DarkstoreEnv(BaseEnv):
                  mapping_file=None,
                  assets_dir = DEFAULT_ASSETS_DIR,
                  **kwargs):
+        with open(scene_json, "r") as f: # big_scene , one_shelf_many_milk_scene , customize
+            data = json.load(f)
+        n = data['meta']['n']
+        m = data['meta']['m']
+        arena_data = get_arena_data(x_cells=n, y_cells=m, height=4)
+        if (meta is None):
+            meta = arena_data['meta']
+        if (arena_config is None):
+            arena_config = arena_data['arena_config']
         self.style_ids = style_ids
         self.arena_config = arena_config
         self.json_file_path = scene_json
