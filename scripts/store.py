@@ -15,7 +15,7 @@ import os
 # CONST
 COUNT_OF_PRODUCT_ON_SHELF = 2
 BOARDS = 5
-COUNT_OF_PRODUCT_ON_BOARD = 2
+COUNT_OF_PRODUCT_ON_BOARD = 1
 
 ASSETS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../models")
 
@@ -200,22 +200,24 @@ def add_objects_to_shelf(
     support_data,
 ):
     for num_board in range(cnt_boards):
-        scene.place_objects(
-            obj_id_iterator=utils.object_id_generator(
-                f"products_" + suf + f"_{num_board}_"
-            ),
-            obj_asset_iterator=(NAMES_OF_PRODUCTS[val] for val in product_on_board[num_board]),
-            # obj_support_id_iterator=scene.support_generator(f'support{cnt}'),
-            obj_support_id_iterator=utils.cycle_list(support_data, [num_board]),
-            obj_position_iterator=utils.PositionIteratorGrid(
-                step_x=0.2,
-                step_y=0.1,
-                noise_std_x=0.01,
-                noise_std_y=0.01,
-                direction="x",
-            ),
-            obj_orientation_iterator=utils.orientation_generator_uniform_around_z(),
-        )
+        for elem in product_on_board[num_board]:
+            scene.place_objects(
+                obj_id_iterator=utils.object_id_generator(
+                    f"{elem}_" + suf + f"_{num_board}_"
+                ),
+                obj_asset_iterator=tuple(NAMES_OF_PRODUCTS[elem] for _ in range(cnt_prod_on_board)),
+                # obj_support_id_iterator=scene.support_generator(f'support{cnt}'),
+                obj_support_id_iterator=utils.cycle_list(support_data, [num_board]),
+                obj_position_iterator=utils.PositionIteratorGrid(
+                    step_x=0.2,
+                    step_y=0.1,
+                    noise_std_x=0.01,
+                    noise_std_y=0.01,
+                    direction="x",
+                ),
+                obj_orientation_iterator=utils.orientation_generator_uniform_around_z(),
+            )
+
 
 
 def try_shelf_placement(
