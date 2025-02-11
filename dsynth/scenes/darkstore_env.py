@@ -21,7 +21,7 @@ from mani_skill.utils.wrappers import RecordEpisode
 from transforms3d import quaternions
 import random
 import string
-# from dsynth.scenes.robocasaroom import RoomFromRobocasa
+from dsynth.scenes.robocasaroom import RoomFromRobocasa
 
 CELL_SIZE = 1.55
 DEFAULT_ASSETS_DIR = 'models'
@@ -93,7 +93,7 @@ class DarkstoreEnv(BaseEnv):
     @property
     def _default_human_render_camera_configs(self):
         # pose = sapien_utils.look_at([0.2, 0.2, 4], [5, 5, 2])
-        pose = sapien_utils.look_at([self.x_size - 0.1, self.y_size - 0.1, self.height], [0, 0, 0])
+        pose = sapien_utils.look_at([3, 3, 3], [0, 0, 0])
         return CameraConfig(
             "render_camera", pose=pose, width=512, height=512, fov=1, near=0.01, far=100
         )
@@ -136,6 +136,27 @@ class DarkstoreEnv(BaseEnv):
         p = matrix[:-1, 3] - origin
         return p, q
     
+    def _add_noise(self, p, max_noise = 1e-4):
+        new_p = [0] * len(p)
+        for i in range(len(p)):
+            new_p[i] = p[i] + random.randrange(-max_noise, max_noise)
+        return new_p
+    
+    def _load_shopping_cart(self, options: dict):
+        # print(self.unwrapped.agent.robot.get_pose())
+        if not hasattr(self, 'shopping_cart'):
+            shopping_cart_asset = os.path.join(self.assets_dir, "shoppingCart.glb")
+            if not os.path.exists(shopping_cart_asset):
+                print(f"Shopping cart asset not found: {shopping_cart_asset}")
+            else:
+                builder = self.scene.create_actor_builder()
+                builder.add_visual_from_file(filename=shopping_cart_asset, scale=np.array([1.0, 1.0, 1.0]))
+                builder.add_nonconvex_collision_from_file(filename=shopping_cart_asset, scale=np.array([1.0, 1.0, 1.0]))
+                shopping_cart_pose = sapien.Pose(p=[1.0, 0.0, 0.0], q=np.array([1, 0, 0, 0]))
+                builder.set_initial_pose(shopping_cart_pose)
+                self.shopping_cart = builder.build_static(name="shopping_cart")
+                self.actors.append(self.shopping_cart)
+    
     def _load_scene_from_json(self, options: dict):
         super()._load_scene(options)
         self.actors = {
@@ -150,7 +171,7 @@ class DarkstoreEnv(BaseEnv):
         }
 
         scale = np.array(options.get("scale", [1.0, 1.0, 1.0]))
-        origin = np.array(options.get("origin", [0.0, 1.0, 0.0]))
+        origin = - self.IMPORTED_SS_SCENE_SHIFT#np.array(options.get("origin", [0.0, 1.0, 0.0]))
 
         with open(self.json_file_path, "r") as f:
             data = json.load(f)
@@ -255,17 +276,17 @@ class DarkstoreEnv(BaseEnv):
             raise NotImplementedError
 
 
-    def evaluate(self):
-        is_obj_placed = (
-            torch.linalg.norm(self.goal_site.pose.p - self.actors["objects"]["milk"][0], axis=1)
-            <= 0.001
-        )
-        is_robot_static = self.agent.is_static(0.2)
-        return {
-            "success": is_obj_placed & is_robot_static,
-            "is_obj_placed": is_obj_placed,
-            "is_robot_static": is_robot_static,
-        }
+    # def evaluate(self):
+    #     is_obj_placed = (
+    #         torch.linalg.norm(self.goal_site.pose.p - self.actors["objects"]["milk"][0], axis=1)
+    #         <= 0.001
+    #     )
+    #     is_robot_static = self.agent.is_static(0.2)
+    #     return {
+    #         "success": is_obj_placed & is_robot_static,
+    #         "is_obj_placed": is_obj_placed,
+    #         "is_robot_static": is_robot_static,
+    #     }
 
     def _get_obs_extra(self, info: Dict):
         return dict()
