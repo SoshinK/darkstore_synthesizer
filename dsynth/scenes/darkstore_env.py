@@ -257,7 +257,7 @@ class DarkstoreEnv(BaseEnv):
             )
             self.agent.reset(qpos)
             self.agent.robot.set_pose(sapien.Pose([0.5, 0.5, 0.0]))
-            self._load_shopping_cart(options)
+            # self._load_shopping_cart(options)
         elif self.robot_uids == "panda":
             qpos = np.array(
                 [
