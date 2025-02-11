@@ -273,7 +273,7 @@ class DarkstoreEnv(BaseEnv):
                 ]
             )
             self.agent.reset(qpos)
-            self.agent.robot.set_pose(sapien.Pose([0.0, 0.0, 0.0]))
+            self.agent.robot.set_pose(sapien.Pose([1.4, 2.2, 0.0]))
             
         else:
             raise NotImplementedError
@@ -281,7 +281,7 @@ class DarkstoreEnv(BaseEnv):
 
     def evaluate(self):
         is_obj_placed = (
-            torch.linalg.norm(self.agent.robot.get_pose.p - self.actors["objects"]["milk"][0], axis=1)
+            torch.linalg.norm(self.agent.robot.get_pose().p - self.actors["objects"]["milk_1_2_0"][0]['p'], axis=1)
             <= 0.001
         )
         is_robot_static = self.agent.is_static(0.2)
