@@ -17,7 +17,7 @@ COUNT_OF_PRODUCT_ON_SHELF = 2
 BOARDS = 5
 COUNT_OF_PRODUCT_ON_BOARD = 1
 
-ASSETS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../models")
+ASSETS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../models")
 
 with open(f"{ASSETS_PATH}/assets.json", "r") as f:
     assets_config = json.load(f)
@@ -363,8 +363,4 @@ if __name__ == "__main__":
     if not is_gen:
         raise UserError("retry to generate a scene")
 
-<<<<<<< HEAD
     try_shelf_placement(room, is_rotate, data['random_shelfs'], args.show)
-=======
-    try_shelf_placement(room, is_rotate, data['random_shelfs'], args.show)
->>>>>>> 81621a5 (Storing actors in the scene dictionary)

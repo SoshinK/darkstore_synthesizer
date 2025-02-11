@@ -21,7 +21,7 @@ from mani_skill.utils.wrappers import RecordEpisode
 from transforms3d import quaternions
 import random
 import string
-from .robocasaroom import RoomFromRobocasa
+from dsynth.scenes.robocasaroom import RoomFromRobocasa
 
 CELL_SIZE = 1.55
 DEFAULT_ASSETS_DIR = 'models'
@@ -75,15 +75,6 @@ class DarkstoreEnv(BaseEnv):
                  mapping_file=None,
                  assets_dir = DEFAULT_ASSETS_DIR,
                  **kwargs):
-        with open(scene_json, "r") as f: # big_scene , one_shelf_many_milk_scene , customize
-            data = json.load(f)
-        n = data['meta']['n']
-        m = data['meta']['m']
-        arena_data = get_arena_data(x_cells=n, y_cells=m, height=4)
-        if (meta is None):
-            meta = arena_data['meta']
-        if (arena_config is None):
-            arena_config = arena_data['arena_config']
         self.style_ids = style_ids
         self.arena_config = arena_config
         self.json_file_path = scene_json
@@ -147,10 +138,19 @@ class DarkstoreEnv(BaseEnv):
     
     def _load_scene_from_json(self, options: dict):
         super()._load_scene(options)
-        self.actors = []
+        self.actors = {
+            "fixtures": {
+                "shelf" : [
+
+                ]
+            },
+            "objects": {
+
+            }
+        }
 
         scale = np.array(options.get("scale", [1.0, 1.0, 1.0]))
-        origin = - self.IMPORTED_SS_SCENE_SHIFT#np.array(options.get("origin", [0.0, 1.0, 0.0]))
+        origin = np.array(options.get("origin", [0.0, 1.0, 0.0]))
 
         with open(self.json_file_path, "r") as f:
             data = json.load(f)
@@ -198,11 +198,11 @@ class DarkstoreEnv(BaseEnv):
                     if obj_name.startswith('shelf'):
                         builder.add_nonconvex_collision_from_file(filename=asset_file, scale=scale)
                         actor = builder.build_static(name=obj_name)
+                        self.actors["fixtures"]["shelf"].append({"p" : p, "q" : q})
                     else:
                         builder.add_convex_collision_from_file(filename=asset_file, scale=scale)
                         actor = builder.build(name=obj_name)
-
-                    self.actors.append(actor)
+                        self.actors["objects"][obj_name].append({"p" : p, "q" : q})
 
 
 
@@ -254,12 +254,16 @@ class DarkstoreEnv(BaseEnv):
 
 
     def evaluate(self):
-        return {}
+        is_obj_placed = (
+            torch.linalg.norm(self.goal_site.pose.p - self.actors["objects"]["milk"][0], axis=1)
+            <= 0.001
+        )
+        is_robot_static = self.agent.is_static(0.2)
+        return {
+            "success": is_obj_placed & is_robot_static,
+            "is_obj_placed": is_obj_placed,
+            "is_robot_static": is_robot_static,
+        }
 
     def _get_obs_extra(self, info: Dict):
         return dict()
-
-
-
-
-

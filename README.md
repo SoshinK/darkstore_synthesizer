@@ -4,7 +4,7 @@
 **Darkstore Synthesizer** – это проект по симулированию и автоматизации работы даркстора. Основан на использовании библиотек [ManiSkill](https://github.com/haosulab/ManiSkill) и [scene_synthesizer](https://github.com/NVlabs/scene_synthesizer).
 
 ## Как гернерировать сцены в scene_synthesizer
-```sripts/store.py``` - скрипт, который по ```input.json``` 
+```dsynth/ss_scene/store.py``` - скрипт, который по ```input.json``` 
 генерирует сцену ```myscene_<first_size>_<second_size>.json```
 
 **Более детально:**
@@ -27,7 +27,7 @@
 где ```BOARDS``` - это константа объявленная в ```scripts/store.py```, количество матриц должно совпадать с жеелаемым 
 желаемым количеством стелажей (```list[list[list[str]]]```)
 
-Для генерации своего ```input.json``` можно использовать ```scripts/generate_json_to_input.py```
+Для генерации своего ```input.json``` можно использовать ```dsynth/ss_scene/generate_json_to_input.py```
 
 ## Что готово уже сейчас?
 За кадром проведено очень много работы. Вот те вещи, которые можно пощупать:
@@ -51,6 +51,7 @@
 ## Структура проекта
 ```
 darkstore_synthesizer/
+│── dsynth/          # Основной пакет проекта
 │── models/          # Модели для симуляции среды
 │── scripts/         # Скрипты для генерации среды
 │── sandbox/         # Рабочие папки
