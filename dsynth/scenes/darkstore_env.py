@@ -58,6 +58,7 @@ def get_arena_data(x_cells=4, y_cells=5, height = 3):
         }
     }
 
+
 @register_env('DarkstoreEnv', max_episode_steps=200000)
 class DarkstoreEnv(BaseEnv):
     SUPPORTED_REWARD_MODES = ["none"]
@@ -75,6 +76,17 @@ class DarkstoreEnv(BaseEnv):
                  mapping_file=None,
                  assets_dir = DEFAULT_ASSETS_DIR,
                  **kwargs):
+        with open(scene_json, "r") as f: # big_scene , one_shelf_many_milk_scene , customize
+            data = json.load(f)
+        n = data['meta']['n']
+        m = data['meta']['m']
+        arena_data = get_arena_data(x_cells=n, y_cells=m, height=4)
+        if (meta is None):
+            meta = arena_data['meta']
+        if (arena_config is None):
+            arena_config = arena_data['arena_config']
+        if (mapping_file is None):
+            mapping_file = str(os.path.dirname(os.path.abspath(__file__))) + "/../../models/connect.json"
         self.style_ids = style_ids
         self.arena_config = arena_config
         self.json_file_path = scene_json
