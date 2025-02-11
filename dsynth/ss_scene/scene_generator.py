@@ -1,4 +1,4 @@
-from scene_check import check_table, find_neibours
+from dsynth.ss_scene.scene_check import check_table, find_neibours
 from collections import deque
 import random
 
