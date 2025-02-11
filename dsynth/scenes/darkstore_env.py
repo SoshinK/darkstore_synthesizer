@@ -143,6 +143,7 @@ class DarkstoreEnv(BaseEnv):
         return new_p
     
     def _load_shopping_cart(self, options: dict):
+        # recommended to use shift = (0,0.5,0)
         # print(self.unwrapped.agent.robot.get_pose())
         if not hasattr(self, 'shopping_cart'):
             shopping_cart_asset = os.path.join(self.assets_dir, "shoppingCart.glb")
@@ -152,10 +153,11 @@ class DarkstoreEnv(BaseEnv):
                 builder = self.scene.create_actor_builder()
                 builder.add_visual_from_file(filename=shopping_cart_asset, scale=np.array([1.0, 1.0, 1.0]))
                 builder.add_nonconvex_collision_from_file(filename=shopping_cart_asset, scale=np.array([1.0, 1.0, 1.0]))
-                shopping_cart_pose = sapien.Pose(p=[1.0, 0.0, 0.0], q=np.array([1, 0, 0, 0]))
+                shopping_cart_pose = sapien.Pose(p=[11.0, 10.0, 0.0], q=np.array([1, 0, 0, 0]))
                 builder.set_initial_pose(shopping_cart_pose)
                 self.shopping_cart = builder.build_static(name="shopping_cart")
-                self.actors.append(self.shopping_cart)
+                # self.actors.append(self.shopping_cart)
+
     
     def _load_scene_from_json(self, options: dict):
         super()._load_scene(options)
@@ -255,6 +257,7 @@ class DarkstoreEnv(BaseEnv):
             )
             self.agent.reset(qpos)
             self.agent.robot.set_pose(sapien.Pose([0.5, 0.5, 0.0]))
+            # self._load_shopping_cart(options)
         elif self.robot_uids == "panda":
             qpos = np.array(
                 [
@@ -276,17 +279,17 @@ class DarkstoreEnv(BaseEnv):
             raise NotImplementedError
 
 
-    # def evaluate(self):
-    #     is_obj_placed = (
-    #         torch.linalg.norm(self.goal_site.pose.p - self.actors["objects"]["milk"][0], axis=1)
-    #         <= 0.001
-    #     )
-    #     is_robot_static = self.agent.is_static(0.2)
-    #     return {
-    #         "success": is_obj_placed & is_robot_static,
-    #         "is_obj_placed": is_obj_placed,
-    #         "is_robot_static": is_robot_static,
-    #     }
+    def evaluate(self):
+        is_obj_placed = (
+            torch.linalg.norm(self.agent.robot.get_pose.p - self.actors["objects"]["milk"][0], axis=1)
+            <= 0.001
+        )
+        is_robot_static = self.agent.is_static(0.2)
+        return {
+            "success": is_obj_placed & is_robot_static,
+            "is_obj_placed": is_obj_placed,
+            "is_robot_static": is_robot_static,
+        }
 
     def _get_obs_extra(self, info: Dict):
         return dict()
