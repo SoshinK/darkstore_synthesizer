@@ -3,7 +3,7 @@ import scene_synthesizer as synth
 from scene_synthesizer import procedural_assets as pa
 from scene_synthesizer import procedural_scenes as ps
 from scene_synthesizer.assets import TrimeshSceneAsset
-from scene_generator import add_many_products, get_orientation
+from dsynth.ss_scene.scene_generator import add_many_products, get_orientation
 from scene_synthesizer import utils
 import trimesh.transformations as tra
 import json
