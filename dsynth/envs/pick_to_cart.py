@@ -58,7 +58,7 @@ class PickToCart(DarkstoreEnv):
                 ]
             )
             self.agent.reset(qpos)
-            self.agent.robot.set_pose(sapien.Pose([1.5, 1.5, 0.0]))
+            self.agent.robot.set_pose(sapien.Pose([0.5, 1.7, 0.0]))
             
 
 
