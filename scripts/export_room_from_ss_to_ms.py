@@ -1,7 +1,7 @@
 import sys 
 sys.path.append('.')
 from dsynth.scenes.darkstore_env import DarkstoreEnv, get_arena_data
-
+from dsynth.envs.pick_to_cart import PickToCart
 from typing import Dict
 
 import sapien
@@ -52,8 +52,8 @@ def main(args):
     m = data['meta']['m']
     arena_data = get_arena_data(x_cells=n, y_cells=m, height=4)
 
-    env = gym.make('DarkstoreEnv', 
-                   robot_uids='fetch', 
+    env = gym.make('PickToCart', 
+                   robot_uids='panda', 
                    scene_json = json_file_path,
                    assets_dir = assets_dir,
                    mapping_file = mapping_file,
