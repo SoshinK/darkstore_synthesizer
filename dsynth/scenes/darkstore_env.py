@@ -21,7 +21,7 @@ from mani_skill.utils.wrappers import RecordEpisode
 from transforms3d import quaternions
 import random
 import string
-from dsynth.scenes.robocasaroom import RoomFromRobocasa
+# from dsynth.scenes.robocasaroom import RoomFromRobocasa
 
 CELL_SIZE = 1.55
 DEFAULT_ASSETS_DIR = 'models'
@@ -198,11 +198,13 @@ class DarkstoreEnv(BaseEnv):
                     if obj_name.startswith('shelf'):
                         builder.add_nonconvex_collision_from_file(filename=asset_file, scale=scale)
                         actor = builder.build_static(name=obj_name)
-                        self.actors["fixtures"]["shelf"].append({"p" : p, "q" : q})
+                        self.actors["fixtures"]["shelf"].append({"actor" : actor, "p" : p, "q" : q})
                     else:
                         builder.add_convex_collision_from_file(filename=asset_file, scale=scale)
                         actor = builder.build(name=obj_name)
-                        self.actors["objects"][obj_name].append({"p" : p, "q" : q})
+                        if self.actors["objects"].get(obj_name, -1) == -1:
+                            self.actors["objects"][obj_name] = []
+                        self.actors["objects"][obj_name].append({"actor" : actor, "p" : p, "q" : q})
 
 
 
