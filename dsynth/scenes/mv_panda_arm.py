@@ -87,11 +87,7 @@ def solve_by_coords(env: DarkstoreEnv, target: Actor, goal_pose: sapien.Pose, se
         q=goal_pose.q  
     )
 
-    # for i in range(5):
-    #     print(reach_pose)
-    #     print(z_goal_pose)
-    #     print(goal_pose)
-    res = planner.move_to_pose_with_screw(z_goal_pose)
+    planner.move_to_pose_with_screw(z_goal_pose)
     res = planner.move_to_pose_with_screw(goal_pose)
 
     planner.close()

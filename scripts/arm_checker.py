@@ -28,9 +28,9 @@ from dsynth.scenes.darkstore_env import get_arena_data, DarkstoreEnv
 from dsynth.envs.pick_to_cart import PickToCart
 #lubin/darkstore_synthesizer/scenes/myscene_5_5.json
 ENV_NAME = 'DarkstoreEnv'
-json_file_path = "scenes/myscene_2_2.json"
+json_file_path = "/home/soshin/gritsaev/darkstore_synthesizer/scenes/myscene_2_2.json"
 # json_file_path = "darkstore_synthesizer/scenes/myscene_5_5.json"
-assets_dir = "models"
+assets_dir = "/home/soshin/gritsaev/darkstore_synthesizer/models"
 style_id = 0
 mapping_file = None
 with open(json_file_path, "r") as f: # big_scene , one_shelf_many_milk_scene , customize
@@ -62,14 +62,15 @@ env.render()
 target = env.actors["objects"]["milk_1_1_0"][0]['actor']
 goal_pose = sapien.Pose([0.5, 0, 0.3])
 
-for i in tqdm(range(100)):
-    # if target is not None and goal_pose is not None:
-    #     action = solve_by_coords(env, target, goal_pose)
-    # else:
-    #     action = env.action_space.sample()
-    action = env.action_space.sample()
+for i in tqdm(range(10)):
+    if target is not None and goal_pose is not None:
+        res = solve_by_coords(env, target, goal_pose)
+    else:
+        action = env.action_space.sample()
+    # action = env.action_space.sample()
+        print(action)
 
-    obs, reward, terminated, truncated, info = env.step(torch.tensor(action, dtype=torch.float32))
-    env.render()
+        obs, reward, terminated, truncated, info = env.step(torch.tensor(action, dtype=torch.float32))
+        env.render()
 
 env.close()
