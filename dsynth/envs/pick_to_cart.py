@@ -1,6 +1,6 @@
 from dsynth.scenes.darkstore_env import DarkstoreEnv
 
-
+@register_env('PickToCart', max_episode_steps=200000)
 class PickToCart(DarkstoreEnv):
 
 
