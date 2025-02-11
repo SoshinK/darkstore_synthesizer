@@ -25,6 +25,7 @@ import argparse
 sys.path.append(".")
 from dsynth.scenes.mv_panda_arm import solve_by_coords
 from dsynth.scenes.darkstore_env import get_arena_data, DarkstoreEnv
+from dsynth.envs.pick_to_cart import PickToCart
 #lubin/darkstore_synthesizer/scenes/myscene_5_5.json
 ENV_NAME = 'DarkstoreEnv'
 json_file_path = "scenes/myscene_2_2.json"
@@ -41,7 +42,7 @@ n = data['meta']['n']
 m = data['meta']['m']
 arena_data = get_arena_data(x_cells=n, y_cells=m, height=4)
 
-env = DarkstoreEnv(scene_json = json_file_path, assets_dir = "models", style_ids = [0], robot_uids = "panda", render_mode="rgb_array", control_mode="pd_joint_pos", **arena_data)
+env = PickToCart(scene_json = json_file_path, assets_dir = "models", style_ids = [0], robot_uids = "panda", render_mode="rgb_array", control_mode="pd_joint_pos", **arena_data)
 env = RecordEpisode(
         env,
         f"./videos__style{style_id}", # the directory to save replay videos and trajectories to
@@ -58,7 +59,7 @@ env.render()
 
 # target = env.actors['objects']['milk'][0]
 
-target = env.actors["objects"]["milk_1_2_0"][0]['actor']
+target = env.actors["objects"]["milk_1_1_0"][0]['actor']
 goal_pose = sapien.Pose([0.5, 0, 0.3])
 
 for i in tqdm(range(100)):
