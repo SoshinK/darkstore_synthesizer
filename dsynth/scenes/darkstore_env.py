@@ -22,6 +22,7 @@ from transforms3d import quaternions
 import random
 import string
 from dsynth.scenes.robocasaroom import RoomFromRobocasa
+from mani_skill.utils.building import actors
 
 CELL_SIZE = 1.55
 DEFAULT_ASSETS_DIR = 'models'
@@ -158,7 +159,9 @@ class DarkstoreEnv(BaseEnv):
         # recommended to use shift = (0,0.5,0)
         # print(self.unwrapped.agent.robot.get_pose())
         if not hasattr(self, 'shopping_cart'):
-            shopping_cart_asset = os.path.join(self.assets_dir, "shoppingCart.glb")
+            shopping_cart_asset = os.path.join(self.assets_dir, "smallShoppingCart.glb")
+            self.cube_half_size = 0.2
+            
             if not os.path.exists(shopping_cart_asset):
                 print(f"Shopping cart asset not found: {shopping_cart_asset}")
             else:
@@ -169,6 +172,15 @@ class DarkstoreEnv(BaseEnv):
                 builder.set_initial_pose(shopping_cart_pose)
                 self.shopping_cart = builder.build_static(name="shopping_cart")
                 # self.actors.append(self.shopping_cart)
+                self.target_volume = actors.build_cube(
+                    self.scene,
+                    half_size=self.cube_half_size,
+                    color=[1, 0, 0, 0.4],
+                    name="cube",
+                    body_type="static",
+                    add_collision=False,
+                    initial_pose=shopping_cart_pose,
+                )
 
     
     def _load_scene_from_json(self, options: dict):
