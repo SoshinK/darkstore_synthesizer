@@ -67,7 +67,9 @@ new_traj_name = time.strftime("%Y%m%d_%H%M%S")
 env = RecordEpisode(
         env,
         output_dir= f"./videos_style_{style_id}_motionplanning",
-        trajectory_name=new_traj_name, save_video=True,
+        trajectory_name=new_traj_name, 
+        save_video=True,
+        max_steps_per_video=300,
         source_type="motionplanning",
         source_desc="official motion planning solution",
         video_fps=30,
