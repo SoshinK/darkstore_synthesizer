@@ -94,7 +94,13 @@ def solve(env: DarkstoreEnv, target: Actor, goal_pose: sapien.Pose, seed=None, d
     # approaching = np.array([0, 1, 0])
     # get transformation matrix of the tcp pose, is default batched and on torch
     target_closing = env.agent.tcp.pose.to_transformation_matrix()[0, :3, 1].cpu().numpy()
+    target_approaching = env.agent.tcp.pose.to_transformation_matrix()[0, :3, 2].cpu().numpy()
     ee_direction = env.agent.tcp.pose.to_transformation_matrix()[0, :3, 2].cpu().numpy()
+    tcp_center = env.agent.tcp.pose.to_transformation_matrix()[0, :3, 3].cpu().numpy()
+
+    init_pose = env.agent.build_grasp_pose(target_approaching, target_closing, tcp_center)
+
+
     # we can build a simple grasp pose using this information for Panda
     agent_pose = env.agent.robot.get_pose()
     grasp_info = compute_box_grasp_thin_side_info(
@@ -133,7 +139,7 @@ def solve(env: DarkstoreEnv, target: Actor, goal_pose: sapien.Pose, seed=None, d
     # Return 
     # -------------------------------------------------------------------------- #
     print(agent_pose)
-    res = planner.move_to_pose_with_screw(env.agent.tcp.pose)
+    res = planner.move_to_pose_with_screw(init_pose)
     planner.close()
     return res
 
