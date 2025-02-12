@@ -87,7 +87,7 @@ def main(args):
     env.render()
 
 
-    for i in tqdm(range(100000)):
+    for i in tqdm(range(40)):
         action = env.action_space.sample()
         obs, reward, terminated, truncated, info = env.step(torch.zeros_like(torch.from_numpy(action)))
 
