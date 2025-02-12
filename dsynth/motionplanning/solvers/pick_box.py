@@ -21,6 +21,26 @@ import trimesh
 from dsynth.scenes.robocasaroom import RoomFromRobocasa
 from dsynth.motionplanning.utils import compute_box_grasp_thin_side_info
 
+def made_mv_seq(planner, reach_pose, cur_pose, inv:bool = False):
+    if (not(inv)):
+        z_reach_pose = sapien.Pose(
+            p=np.array([cur_pose.p[0], cur_pose.p[1], reach_pose.p[2]], dtype=np.float32),
+            q=agent_q_np
+        )
+        y_reach_pose = sapien.Pose(
+            p=np.array([cur_pose.p[0], reach_pose.p[1], reach_pose.p[2]], dtype=np.float32),
+            q=agent_q_np
+        )
+        x_reach_pose = sapien.Pose(
+            p=np.array([reach_pose.p[0], reach_pose.p[1], reach_pose.p[2]], dtype=np.float32),
+            q=agent_q_np
+        )
+        planner.move_to_pose_with_screw(z_reach_pose)
+        planner.move_to_pose_with_screw(y_reach_pose)
+        planner.move_to_pose_with_screw(x_reach_pose)
+        
+    
+
 def solve(env: DarkstoreEnv, target: Actor, goal_pose: sapien.Pose, seed=None, debug=False, vis=False):
     planner = PandaArmMotionPlanningSolver(
         env,
@@ -71,7 +91,7 @@ def solve(env: DarkstoreEnv, target: Actor, goal_pose: sapien.Pose, seed=None, d
     #     q=agent_q_np
     # )
     reach_pose = grasp_pose * sapien.Pose([0, 0, -0.05])
-    res = planner.move_to_pose_with_screw(reach_pose)
+    made_mv_seq(planner, reach_pose, agent_pose)
 
     # -------------------------------------------------------------------------- #
     # Grasp
