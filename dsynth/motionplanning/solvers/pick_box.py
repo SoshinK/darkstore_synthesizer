@@ -20,6 +20,7 @@ import torch
 import trimesh
 from dsynth.scenes.robocasaroom import RoomFromRobocasa
 from dsynth.motionplanning.utils import compute_box_grasp_thin_side_info
+from torch import Tensor
 
 def made_mv_seq(planner, reach_pose, cur_pose, inv: bool = False):
     res = None
@@ -46,19 +47,24 @@ def made_mv_seq(planner, reach_pose, cur_pose, inv: bool = False):
         res = planner.move_to_pose_with_screw(x_reach_pose)
         print("DEBUG4")
     else:
-        np_cur_pose = np.array(cur_pose.p[0], dtype = np.float32)
+        print("1")
+        np_reach_pose = np.array(reach_pose.p[0], dtype = np.float32)
+        np_reach_pose_q = np.array(reach_pose.q[0], dtype = np.float32)
         z_reach_pose = sapien.Pose(
-            p=np.array([np_cur_pose[0], reach_pose.p[1], np_cur_pose[2]], dtype=np.float32),
-            q=reach_pose.q
+            p=np.array([cur_pose.p[0], np_reach_pose[1], cur_pose.p[2]], dtype=np.float32),
+            q=cur_pose.q
         )
+        print("2")
         y_reach_pose = sapien.Pose(
-            p=np.array([reach_pose.p[0], reach_pose.p[1], np_cur_pose[2]], dtype=np.float32),
-            q=reach_pose.q
+            p=np.array([np_reach_pose[0], np_reach_pose[1], cur_pose.p[2]], dtype=np.float32),
+            q=cur_pose.q
         )
+        print("3")
         x_reach_pose = sapien.Pose(
-            p=np.array([reach_pose.p[0], reach_pose.p[1], reach_pose.p[2]], dtype=np.float32),
-            q=reach_pose.q
+            p=np.array([np_reach_pose[0], np_reach_pose[1], np_reach_pose[2]], dtype=np.float32),
+            q=cur_pose.q
         )
+        print("4")
         res = planner.move_to_pose_with_screw(z_reach_pose)
         res = planner.move_to_pose_with_screw(y_reach_pose)
         res = planner.move_to_pose_with_screw(x_reach_pose)
@@ -104,7 +110,7 @@ def solve(env: DarkstoreEnv, target: Actor, goal_pose: sapien.Pose, seed=None, d
     # -------------------------------------------------------------------------- #
     # Reach
     # -------------------------------------------------------------------------- #
-    
+    print(agent_pose)
     reach_pose = grasp_pose * sapien.Pose([0, 0, -0.1])
     res = made_mv_seq(planner, reach_pose, agent_pose)
 
@@ -113,7 +119,6 @@ def solve(env: DarkstoreEnv, target: Actor, goal_pose: sapien.Pose, seed=None, d
     # -------------------------------------------------------------------------- #
 
     # reach_pose = grasp_pose * sapien.Pose([0, 0, -0.05])
-
     res = planner.move_to_pose_with_screw(grasp_pose)
     res = planner.close_gripper()
 
@@ -125,34 +130,16 @@ def solve(env: DarkstoreEnv, target: Actor, goal_pose: sapien.Pose, seed=None, d
     res = planner.move_to_pose_with_screw(lift_pose)
 
     # -------------------------------------------------------------------------- #
-    # Pull
+    # Return 
     # -------------------------------------------------------------------------- #
-
-    pull_pose = lift_pose * sapien.Pose([0., 0., -0.2])
-    res = planner.move_to_pose_with_screw(pull_pose)
-    
-    
-    # -------------------------------------------------------------------------- #
-    # Lift
-    # -------------------------------------------------------------------------- #
-
-    lift_pose = pull_pose * sapien.Pose([0., 0., 0.3])
-    res = planner.move_to_pose_with_screw(lift_pose)
-    
-
+    print(agent_pose)
+    res = planner.move_to_pose_with_screw(env.agent.tcp.pose)
+    planner.close()
+    return res
 
     # -------------------------------------------------------------------------- #
     # Move to goal pose
     # -------------------------------------------------------------------------- #
-
-
-    # z_goal_pose = sapien.Pose(
-    #     p=[goal_pose.p[0][0], goal_pose.p[0][1], reach_pose.p[0][2]],  
-    #     q=goal_pose.q  
-    # )
-
-    # planner.move_to_pose_with_screw(z_goal_pose)
-    # res = planner.move_to_pose_with_screw(goal_pose)
 
     res = move_to_goal_pose(planner, goal_pose)
     
