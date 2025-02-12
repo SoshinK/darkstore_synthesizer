@@ -25,15 +25,15 @@ def made_mv_seq(planner, reach_pose, cur_pose, inv:bool = False):
     if (not(inv)):
         z_reach_pose = sapien.Pose(
             p=np.array([cur_pose.p[0], cur_pose.p[1], reach_pose.p[2]], dtype=np.float32),
-            q=agent_q_np
+            q=reach_pose.q
         )
         y_reach_pose = sapien.Pose(
             p=np.array([cur_pose.p[0], reach_pose.p[1], reach_pose.p[2]], dtype=np.float32),
-            q=agent_q_np
+            q=reach_pose.q
         )
         x_reach_pose = sapien.Pose(
             p=np.array([reach_pose.p[0], reach_pose.p[1], reach_pose.p[2]], dtype=np.float32),
-            q=agent_q_np
+            q=reach_pose.q
         )
         planner.move_to_pose_with_screw(z_reach_pose)
         planner.move_to_pose_with_screw(y_reach_pose)
