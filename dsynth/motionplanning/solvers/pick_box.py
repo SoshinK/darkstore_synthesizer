@@ -25,7 +25,7 @@ from torch import Tensor
 def made_mv_seq(planner, reach_pose, cur_pose, inv: bool = False):
     res = None
     if (inv is False):
-        np_cur_pose = np.array(cur_pose.p[0], dtype = np.float32)
+        np_cur_pose = np.array(cur_pose.p, dtype = np.float32)
         z_reach_pose = sapien.Pose(
             p=np.array([np_cur_pose[0], np_cur_pose[1], reach_pose.p[2]], dtype=np.float32),
             q=reach_pose.q
@@ -39,32 +39,24 @@ def made_mv_seq(planner, reach_pose, cur_pose, inv: bool = False):
             q=reach_pose.q
         )
 
-        print("DEBUG1")
         res = planner.move_to_pose_with_screw(z_reach_pose)
-        print("DEBUG2")
         res = planner.move_to_pose_with_screw(y_reach_pose)
-        print("DEBUG3")
         res = planner.move_to_pose_with_screw(x_reach_pose)
-        print("DEBUG4")
     else:
-        print("1")
-        np_reach_pose = np.array(reach_pose.p[0], dtype = np.float32)
-        np_reach_pose_q = np.array(reach_pose.q[0], dtype = np.float32)
+        np_reach_pose = np.array(reach_pose.p, dtype = np.float32)
+        np_reach_pose_q = np.array(reach_pose.q, dtype = np.float32)
         z_reach_pose = sapien.Pose(
             p=np.array([cur_pose.p[0], np_reach_pose[1], cur_pose.p[2]], dtype=np.float32),
             q=cur_pose.q
         )
-        print("2")
         y_reach_pose = sapien.Pose(
             p=np.array([np_reach_pose[0], np_reach_pose[1], cur_pose.p[2]], dtype=np.float32),
             q=cur_pose.q
         )
-        print("3")
         x_reach_pose = sapien.Pose(
             p=np.array([np_reach_pose[0], np_reach_pose[1], np_reach_pose[2]], dtype=np.float32),
             q=cur_pose.q
         )
-        print("4")
         res = planner.move_to_pose_with_screw(z_reach_pose)
         res = planner.move_to_pose_with_screw(y_reach_pose)
         res = planner.move_to_pose_with_screw(x_reach_pose)
@@ -98,7 +90,12 @@ def solve(env: DarkstoreEnv, target: Actor, goal_pose: sapien.Pose, seed=None, d
     ee_direction = env.agent.tcp.pose.to_transformation_matrix()[0, :3, 2].cpu().numpy()
     tcp_center = env.agent.tcp.pose.to_transformation_matrix()[0, :3, 3].cpu().numpy()
 
+    goal_closing = goal_pose.to_transformation_matrix()[0, :3, 1].cpu().numpy()
+    goal_approaching = goal_pose.to_transformation_matrix()[0, :3, 2].cpu().numpy()
+    goal_center = goal_pose.to_transformation_matrix()[0, :3, 3].cpu().numpy()
+
     init_pose = env.agent.build_grasp_pose(target_approaching, target_closing, tcp_center)
+    goal_pose = env.agent.build_grasp_pose(-goal_approaching, goal_closing, goal_center)
 
 
     # we can build a simple grasp pose using this information for Panda
@@ -118,7 +115,7 @@ def solve(env: DarkstoreEnv, target: Actor, goal_pose: sapien.Pose, seed=None, d
     # -------------------------------------------------------------------------- #
     print(agent_pose)
     reach_pose = grasp_pose * sapien.Pose([0, 0, -0.1])
-    res = made_mv_seq(planner, reach_pose, agent_pose)
+    res = made_mv_seq(planner, reach_pose, init_pose)
 
     # -------------------------------------------------------------------------- #
     # Grasp
@@ -138,10 +135,9 @@ def solve(env: DarkstoreEnv, target: Actor, goal_pose: sapien.Pose, seed=None, d
     # -------------------------------------------------------------------------- #
     # Return 
     # -------------------------------------------------------------------------- #
-    print(agent_pose)
-    res = planner.move_to_pose_with_screw(init_pose)
-    planner.close()
-    return res
+    res = made_mv_seq(planner, init_pose, reach_pose, inv=True)
+    # planner.close()
+    # return res
 
     # -------------------------------------------------------------------------- #
     # Move to goal pose
