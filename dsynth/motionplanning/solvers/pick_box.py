@@ -43,6 +43,26 @@ def made_mv_seq(planner, reach_pose, cur_pose, inv: bool = False):
         res = planner.move_to_pose_with_screw(z_reach_pose)
         res = planner.move_to_pose_with_screw(y_reach_pose)
         res = planner.move_to_pose_with_screw(x_reach_pose)
+    else:
+        for i in range(5):
+            print(cur_pose.p[0][0]) 
+        
+        np_cur_pose = np.array(cur_pose.p[0], dtype = np.float32)
+        z_reach_pose = sapien.Pose(
+            p=np.array([np_cur_pose[0], reach_pose.p[1], np_cur_pose[2]], dtype=np.float32),
+            q=reach_pose.q
+        )
+        y_reach_pose = sapien.Pose(
+            p=np.array([reach_pose.p[0], reach_pose.p[1], np_cur_pose[2]], dtype=np.float32),
+            q=reach_pose.q
+        )
+        x_reach_pose = sapien.Pose(
+            p=np.array([reach_pose.p[0], reach_pose.p[1], reach_pose.p[2]], dtype=np.float32),
+            q=reach_pose.q
+        )
+        res = planner.move_to_pose_with_screw(z_reach_pose)
+        res = planner.move_to_pose_with_screw(y_reach_pose)
+        res = planner.move_to_pose_with_screw(x_reach_pose)
     return res
     
 
