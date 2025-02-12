@@ -58,6 +58,7 @@ def get_arena_data(x_cells=4, y_cells=5, height = 3):
         }
     }
 
+
 @register_env('DarkstoreEnv', max_episode_steps=200000)
 class DarkstoreEnv(BaseEnv):
     SUPPORTED_REWARD_MODES = ["none"]
@@ -75,6 +76,17 @@ class DarkstoreEnv(BaseEnv):
                  mapping_file=None,
                  assets_dir = DEFAULT_ASSETS_DIR,
                  **kwargs):
+        with open(scene_json, "r") as f: # big_scene , one_shelf_many_milk_scene , customize
+            data = json.load(f)
+        n = data['meta']['n']
+        m = data['meta']['m']
+        arena_data = get_arena_data(x_cells=n, y_cells=m, height=4)
+        if (meta is None):
+            meta = arena_data['meta']
+        if (arena_config is None):
+            arena_config = arena_data['arena_config']
+        if (mapping_file is None):
+            mapping_file = str(os.path.dirname(os.path.abspath(__file__))) + "/../../models/connect.json"
         self.style_ids = style_ids
         self.arena_config = arena_config
         self.json_file_path = scene_json
@@ -273,23 +285,23 @@ class DarkstoreEnv(BaseEnv):
                 ]
             )
             self.agent.reset(qpos)
-            self.agent.robot.set_pose(sapien.Pose([1.4, 2.2, 0.0]))
+            self.agent.robot.set_pose(sapien.Pose([0.0, 0.0, 0.0]))
             
         else:
             raise NotImplementedError
 
 
-    def evaluate(self):
-        is_obj_placed = (
-            torch.linalg.norm(self.agent.robot.get_pose().p - self.actors["objects"]["milk_1_2_0"][0]['p'], axis=1)
-            <= 0.001
-        )
-        is_robot_static = self.agent.is_static(0.2)
-        return {
-            "success": is_obj_placed & is_robot_static,
-            "is_obj_placed": is_obj_placed,
-            "is_robot_static": is_robot_static,
-        }
+    # def evaluate(self):
+    #     is_obj_placed = (
+    #         torch.linalg.norm(self.agent.robot.get_pose().p - self.actors["objects"]["milk_1_1_0"][0]['p'], axis=1)
+    #         <= 0.001
+    #     )
+    #     is_robot_static = self.agent.is_static(0.2)
+    #     return {
+    #         "success": is_obj_placed & is_robot_static,
+    #         "is_obj_placed": is_obj_placed,
+    #         "is_robot_static": is_robot_static,
+    #     }
 
     def _get_obs_extra(self, info: Dict):
         return dict()

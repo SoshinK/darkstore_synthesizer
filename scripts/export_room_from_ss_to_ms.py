@@ -33,6 +33,9 @@ def parse_args():
                         const='default',
                         nargs='?',
                         choices=['rt', 'rt-fast', 'default', 'minimal'],)
+    parser.add_argument('--gui',
+                        action='store_true',
+                        default=False)
 
     args = parser.parse_args()
 
@@ -44,6 +47,7 @@ def main(args):
     assets_dir = args.assets_dir
     style_id = args.style_id
     mapping_file = args.mapping_file
+    gui = args.gui
 
     with open(json_file_path, "r") as f: # big_scene , one_shelf_many_milk_scene , customize
         data = json.load(f)
@@ -60,18 +64,18 @@ def main(args):
                    style_ids = [style_id], 
                    num_envs=1, 
                    viewer_camera_configs={'shader_pack': args.shader}, 
-                   render_mode="rgb_array", 
+                   render_mode="human" if gui else "rgb_array", 
                    enable_shadow=True, 
                    **arena_data)
 
-
-    env = RecordEpisode(
-        env,
-        f"./videos_{n}_{m}_style{style_id}", # the directory to save replay videos and trajectories to
-        # on GPU sim we record intervals, not by single episodes as there are multiple envs
-        # each 100 steps a new video is saved
-        max_steps_per_video=100
-    )
+    if not gui:
+        env = RecordEpisode(
+            env,
+            f"./videos_{n}_{m}_style{style_id}", # the directory to save replay videos and trajectories to
+            # on GPU sim we record intervals, not by single episodes as there are multiple envs
+            # each 100 steps a new video is saved
+            max_steps_per_video=100
+        )
 
     # step through the environment with random actions
     obs, _ = env.reset()
@@ -83,7 +87,7 @@ def main(args):
     env.render()
 
 
-    for i in tqdm(range(100)):
+    for i in tqdm(range(100000)):
         action = env.action_space.sample()
         obs, reward, terminated, truncated, info = env.step(torch.zeros_like(torch.from_numpy(action)))
 

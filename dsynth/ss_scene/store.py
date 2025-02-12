@@ -1,5 +1,4 @@
 import numpy as np
-import sys
 import scene_synthesizer as synth
 from scene_synthesizer import procedural_assets as pa
 from scene_synthesizer import procedural_scenes as ps
@@ -8,6 +7,7 @@ from dsynth.ss_scene.scene_generator import add_many_products, get_orientation
 from scene_synthesizer import utils
 import trimesh.transformations as tra
 import json
+import sys
 import argparse
 import trimesh
 import os
@@ -355,7 +355,7 @@ if __name__ == "__main__":
     x, y = data["door_coords"]
 
     mat = data.get("blocked_matrix", [[0] * m for _ in range(n)])
-    name_to_cnt = {'milk': 5, 'baby': 3, 'cereal': 2}
+    name_to_cnt = {'milk': 1, 'baby': 0, 'cereal': 0}
 
     is_gen, room = add_many_products((x, y), mat, name_to_cnt)
     is_rotate = get_orientation((x, y), room)
