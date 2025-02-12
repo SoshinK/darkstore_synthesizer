@@ -30,11 +30,12 @@ class PickToCart(DarkstoreEnv):
         
     @property
     def _default_human_render_camera_configs(self):
-        # pose = sapien_utils.look_at([0.2, 0.2, 4], [5, 5, 2])
+        # pose = sapien_utils.look_at([7, 7, 7], [5, 5, 2])
         pose = sapien_utils.look_at([0, 1.3, 1.2], [1, 2, 1])
         return CameraConfig(
             "render_camera", pose=pose, width=512, height=512, fov=1, near=0.01, far=100
         )
+
     def _initialize_episode(self, env_idx: torch.Tensor, options: dict):
         super()._initialize_episode(env_idx, options)
         

@@ -20,13 +20,11 @@ import torch
 import trimesh
 from dsynth.scenes.robocasaroom import RoomFromRobocasa
 from dsynth.motionplanning.utils import compute_box_grasp_thin_side_info
+from torch import Tensor
 
 def made_mv_seq(planner, reach_pose, cur_pose, inv: bool = False):
     res = None
     if (inv is False):
-        for i in range(5):
-            print(cur_pose.p[0][0]) 
-
         np_cur_pose = np.array(cur_pose.p[0], dtype = np.float32)
         z_reach_pose = sapien.Pose(
             p=np.array([np_cur_pose[0], np_cur_pose[1], reach_pose.p[2]], dtype=np.float32),
@@ -40,26 +38,33 @@ def made_mv_seq(planner, reach_pose, cur_pose, inv: bool = False):
             p=np.array([reach_pose.p[0], reach_pose.p[1], reach_pose.p[2]], dtype=np.float32),
             q=reach_pose.q
         )
+
+        print("DEBUG1")
         res = planner.move_to_pose_with_screw(z_reach_pose)
+        print("DEBUG2")
         res = planner.move_to_pose_with_screw(y_reach_pose)
+        print("DEBUG3")
         res = planner.move_to_pose_with_screw(x_reach_pose)
+        print("DEBUG4")
     else:
-        for i in range(5):
-            print(cur_pose.p[0][0]) 
-        
-        np_cur_pose = np.array(cur_pose.p[0], dtype = np.float32)
+        print("1")
+        np_reach_pose = np.array(reach_pose.p[0], dtype = np.float32)
+        np_reach_pose_q = np.array(reach_pose.q[0], dtype = np.float32)
         z_reach_pose = sapien.Pose(
-            p=np.array([np_cur_pose[0], reach_pose.p[1], np_cur_pose[2]], dtype=np.float32),
-            q=reach_pose.q
+            p=np.array([cur_pose.p[0], np_reach_pose[1], cur_pose.p[2]], dtype=np.float32),
+            q=cur_pose.q
         )
+        print("2")
         y_reach_pose = sapien.Pose(
-            p=np.array([reach_pose.p[0], reach_pose.p[1], np_cur_pose[2]], dtype=np.float32),
-            q=reach_pose.q
+            p=np.array([np_reach_pose[0], np_reach_pose[1], cur_pose.p[2]], dtype=np.float32),
+            q=cur_pose.q
         )
+        print("3")
         x_reach_pose = sapien.Pose(
-            p=np.array([reach_pose.p[0], reach_pose.p[1], reach_pose.p[2]], dtype=np.float32),
-            q=reach_pose.q
+            p=np.array([np_reach_pose[0], np_reach_pose[1], np_reach_pose[2]], dtype=np.float32),
+            q=cur_pose.q
         )
+        print("4")
         res = planner.move_to_pose_with_screw(z_reach_pose)
         res = planner.move_to_pose_with_screw(y_reach_pose)
         res = planner.move_to_pose_with_screw(x_reach_pose)
@@ -89,7 +94,13 @@ def solve(env: DarkstoreEnv, target: Actor, goal_pose: sapien.Pose, seed=None, d
     # approaching = np.array([0, 1, 0])
     # get transformation matrix of the tcp pose, is default batched and on torch
     target_closing = env.agent.tcp.pose.to_transformation_matrix()[0, :3, 1].cpu().numpy()
+    target_approaching = env.agent.tcp.pose.to_transformation_matrix()[0, :3, 2].cpu().numpy()
     ee_direction = env.agent.tcp.pose.to_transformation_matrix()[0, :3, 2].cpu().numpy()
+    tcp_center = env.agent.tcp.pose.to_transformation_matrix()[0, :3, 3].cpu().numpy()
+
+    init_pose = env.agent.build_grasp_pose(target_approaching, target_closing, tcp_center)
+
+
     # we can build a simple grasp pose using this information for Panda
     agent_pose = env.agent.robot.get_pose()
     grasp_info = compute_box_grasp_thin_side_info(
@@ -105,18 +116,8 @@ def solve(env: DarkstoreEnv, target: Actor, goal_pose: sapien.Pose, seed=None, d
     # -------------------------------------------------------------------------- #
     # Reach
     # -------------------------------------------------------------------------- #
-
-    # agent_p_np = np.array(agent_pose.p[0][0], dtype=np.float32)
-    # grasp_p_np = np.array(grasp_pose.p[0], dtype=np.float32)
-
-    # agent_q_np = np.array(agent_pose.q[0], dtype=np.float32)
-
-    # z_reach_pose = sapien.Pose(
-    #     p=np.array([agent_p_np[0], agent_p_np[1], grasp_p_np[2]], dtype=np.float32),
-    #     q=agent_q_np
-    # )
-    
-    reach_pose = grasp_pose * sapien.Pose([0, 0, -0.05])
+    print(agent_pose)
+    reach_pose = grasp_pose * sapien.Pose([0, 0, -0.1])
     res = made_mv_seq(planner, reach_pose, agent_pose)
 
     # -------------------------------------------------------------------------- #
@@ -124,7 +125,6 @@ def solve(env: DarkstoreEnv, target: Actor, goal_pose: sapien.Pose, seed=None, d
     # -------------------------------------------------------------------------- #
 
     # reach_pose = grasp_pose * sapien.Pose([0, 0, -0.05])
-
     res = planner.move_to_pose_with_screw(grasp_pose)
     res = planner.close_gripper()
 
@@ -134,39 +134,21 @@ def solve(env: DarkstoreEnv, target: Actor, goal_pose: sapien.Pose, seed=None, d
 
     lift_pose = grasp_pose * sapien.Pose([0.02, 0., 0.])
     res = planner.move_to_pose_with_screw(lift_pose)
-    
 
     # -------------------------------------------------------------------------- #
-    # Pull
+    # Return 
     # -------------------------------------------------------------------------- #
-    pull_pose = lift_pose * sapien.Pose([0, 0, -0.2])
-    res = planner.move_to_pose_with_screw(pull_pose)
-    
-    
-    # -------------------------------------------------------------------------- #
-    # Lift
-    # -------------------------------------------------------------------------- #
-
-    lift_pose = pull_pose * sapien.Pose([0., 0., 0.3])
-    res = planner.move_to_pose_with_screw(lift_pose)
-    
-
+    print(agent_pose)
+    res = planner.move_to_pose_with_screw(init_pose)
+    planner.close()
+    return res
 
     # -------------------------------------------------------------------------- #
     # Move to goal pose
     # -------------------------------------------------------------------------- #
 
-
-    # z_goal_pose = sapien.Pose(
-    #     p=[goal_pose.p[0][0], goal_pose.p[0][1], reach_pose.p[0][2]],  
-    #     q=goal_pose.q  
-    # )
-
-    # planner.move_to_pose_with_screw(z_goal_pose)
-    # res = planner.move_to_pose_with_screw(goal_pose)
-
     res = move_to_goal_pose(planner, goal_pose)
-
+    
     planner.close()
     return res
 
