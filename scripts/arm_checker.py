@@ -32,14 +32,14 @@ cnt_good = 0
 
 IDLE_STEPS_MAX = 90
 
-for j in range(0, 20):
+for j in tqdm(range(1, 10)):
     
-    json_file_path = "./scenes/myscene_2_2.json"
-    json_file_path = "./scenes/myscene_2_2" + str(j)+ ".json"
+    json_file_path = "myscene_2_2.json"
+    json_file_path = "./gen_scenes/myscene_2_2" + str(j)+ ".json"
     # json_file_path = "darkstore_synthesizer/scenes/myscene_5_5.json"
     assets_dir = "models"
     style_id = 0
-    mapping_file = None
+    mapping_file = 'models/connect.json'
     with open(json_file_path, "r") as f: # big_scene , one_shelf_many_milk_scene , customize
         data = json.load(f)
     for el in data['meta']:
@@ -64,25 +64,17 @@ for j in range(0, 20):
             enable_shadow=True, 
             **arena_data)
 
-    # env = RecordEpisode(
-    #         env,
-    #         f"./videos__style{style_id}", # the directory to save replay videos and trajectories to
-    #         # on GPU sim we record intervals, not by single episodes as there are multiple envs
-    #         # each 100 steps a new video is saved
-    #         max_steps_per_video=100
-    #     )
     new_traj_name = str(cnt_good)
+    
     env = RecordEpisode(
-            env,
-            output_dir= f"./videos_style_{style_id}_motionplanningdwddwd" + str(cnt_good),
-            trajectory_name=new_traj_name, 
-            save_video=True,
-            max_steps_per_video=100,
-            source_type="motionplanning",
-            source_desc="official motion planning solution",
-            video_fps=30,
-            save_on_reset=False
-        )
+        env,
+        output_dir=f"./arm_checker_out/videos_style_{style_id}_motionplanning" + str(cnt_good),
+        trajectory_name=new_traj_name, save_video=True,
+        source_type="motionplanning",
+        source_desc="AI360 winter school",
+        video_fps=30,
+        save_on_reset=True
+    )
 
     obs, _ = env.reset()
     viewer = env.render()
@@ -95,33 +87,26 @@ for j in range(0, 20):
     target = env.actors["objects"]["milk_1_1_0"][0]['actor']
     goal_pose = env.target_volume.pose * sapien.Pose([0, 0, 0.6])
 
-    for i in tqdm(range(1)):
+    for i in range(1):
     # while True:
-        if target is not None and goal_pose is not None:
-            res = solve(env, target, goal_pose, vis=False)
-            action = np.zeros_like(env.action_space.sample())
-        # action = env.action_space.sample()
-            # print(action)
-            for _ in range(IDLE_STEPS_MAX):
-                obs, reward, terminated, truncated, info = env.step(torch.tensor(action, dtype=torch.float32))
-                env.render()
-                if env.evaluate()['success']:
-                    break
-        else:
-            action = env.action_space.sample()
-        # action = env.action_space.sample()
-            print(action)
+        res = solve_smooth(env, target, goal_pose, vis=False)
 
-            obs, reward, terminated, truncated, info = env.step(torch.tensor(action, dtype=torch.float32))
+        # do-nothin action for pd_joint_pos_control
+        action_zero = env.agent.robot.qpos.numpy()[0, :-1]
+
+        for _ in range(IDLE_STEPS_MAX):
+            obs, reward, terminated, truncated, info = env.step(action_zero)
             env.render()
+            if env.evaluate()['success']:
+                break
 
     result = env.evaluate()
     print(result)
     if result['success']:
-        with open("good_scene" + str(cnt_good) + ".json", 'w', encoding='utf-8') as f:
+        with open("arm_checker_out/good_scene" + str(cnt_good) + ".json", 'w', encoding='utf-8') as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
         cnt_good += 1
-    # viewer.paused = True
-    # env.render()
+    viewer.paused = True
+    env.render()
     env.close()
 print(cnt_good)
