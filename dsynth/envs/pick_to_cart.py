@@ -11,16 +11,27 @@ class PickToCart(DarkstoreEnv):
 
 
     def evaluate(self):
-        is_obj_placed = (
-            torch.linalg.norm(self.target_volume.pose.p - self.actors["objects"]["milk_1_1_0"][0]['p'], axis=1)
-            <= 0.025
+        target_pos = torch.tensor(self.target_volume.pose.p, dtype=torch.float32)
+        target_half_extents = torch.tensor(self.cube_half_size * 3, dtype=torch.float32)
+        milk_pos = torch.tensor(self.actors["objects"]["milk_1_1_0"][0]['p'], dtype=torch.float32)
+        
+        is_obj_placed = torch.all(
+            (milk_pos >= (target_pos - target_half_extents)) & 
+            (milk_pos <= (target_pos + target_half_extents)),
+            dim=-1
         )
+
         is_robot_static = self.agent.is_static(0.2)
         return {
+            "first" : milk_pos,
+            "second" : target_pos,
+            "third" : target_pos - target_half_extents,
+            "fourth" : target_pos + target_half_extents,
             "success": is_obj_placed & is_robot_static,
             "is_obj_placed": is_obj_placed,
             "is_robot_static": is_robot_static,
         }
+
         
     def _load_scene(self, options: dict):
         super()._load_scene(options)
