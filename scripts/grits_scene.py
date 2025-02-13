@@ -9,6 +9,7 @@ import json
 import sys
 import argparse
 import trimesh
+import tqdm
 import os
 sys.path.append('.')
 from dsynth.ss_scene.store import try_shelf_placement
@@ -37,7 +38,7 @@ if __name__ == "__main__":
     with open(args.input, "r") as f:
         data = json.load(f)
     
-    for j in range(int(args.its)):
+    for j in tqdm.tqdm(range(int(args.its))):
         n, m = data["room_size"]
         x, y = data["door_coords"]
 
