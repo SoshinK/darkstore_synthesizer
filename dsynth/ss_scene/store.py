@@ -189,6 +189,8 @@ def set_shelf(
         obj_ids=[name],
         min_area=0.05,
         gravity=np.array([0, 0, -1]),
+        errosion_distance= 0.3
+        
     )
     print(support_data)
     return support_data
