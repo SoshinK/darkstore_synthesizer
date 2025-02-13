@@ -94,15 +94,10 @@ def main(args):
         obs, reward, terminated, truncated, info = env.step(torch.zeros_like(torch.from_numpy(action)))
 
         rgb_image = obs["sensor_data"]["base_camera"]["rgb"]
-        # rgb_image = np.squeeze(rgb_image, axis=0)
-        env.sim.place_camera(position=[0.5, 0.0, 1.0], look_at=[0, 0, 0.5])
         rgb_image = rgb_image.permute((0, 3, 1, 2))
         
-        plt.imshow(rgb_image)
-        plt.axis("off")
-        plt.show()
         env.render()
-        # env.render_human() # will render with a window if possible
+        env.render_human()
     env.close()
 
 

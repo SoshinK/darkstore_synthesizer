@@ -100,7 +100,7 @@ class DarkstoreEnv(BaseEnv):
 
     @property
     def _default_sensor_configs(self):
-        pose = sapien_utils.look_at([1.25, -1.25, 1.5], [0.0, 0.0, 0.2])
+        pose = sapien_utils.look_at([0.7, 1.8, 1.15], [1.2, 2.2, 1.2])
         return [CameraConfig("base_camera", pose, 256, 256, np.pi / 2, 0.01, 100)]
 
     @property
