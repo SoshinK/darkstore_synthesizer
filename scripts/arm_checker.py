@@ -25,9 +25,10 @@ import argparse
 sys.path.append(".")
 from dsynth.scenes.darkstore_env import get_arena_data, DarkstoreEnv
 from dsynth.envs.pick_to_cart import PickToCart
-from dsynth.motionplanning.solvers.pick_box import solve
+from dsynth.motionplanning.solvers.pick_box import solve, solve_smooth
 #lubin/darkstore_synthesizer/scenes/myscene_5_5.json
 ENV_NAME = 'DarkstoreEnv'
+json_file_path = "./scenes/myscene_2_2.json"
 json_file_path = "./scenes/myscene_2_2.json"
 # json_file_path = "darkstore_synthesizer/scenes/myscene_5_5.json"
 assets_dir = "models"
@@ -69,7 +70,7 @@ env = RecordEpisode(
         output_dir= f"./videos_style_{style_id}_motionplanning",
         trajectory_name=new_traj_name, 
         save_video=True,
-        max_steps_per_video=100,
+        max_steps_per_video=300,
         source_type="motionplanning",
         source_desc="official motion planning solution",
         video_fps=30,
@@ -85,7 +86,7 @@ env.render()
 # target = env.actors['objects']['milk'][0]
 
 target = env.actors["objects"]["milk_1_1_0"][0]['actor']
-goal_pose = sapien.Pose([0.5, 0, 0.3])
+goal_pose = env.target_volume.pose * sapien.Pose([0, 0, 0.6])
 
 for i in tqdm(range(1)):
 # while True:
@@ -99,4 +100,8 @@ for i in tqdm(range(1)):
         obs, reward, terminated, truncated, info = env.step(torch.tensor(action, dtype=torch.float32))
         env.render()
 
+result = env.evaluate()
+
+# viewer.paused = True
+# env.render()
 env.close()

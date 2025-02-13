@@ -18,6 +18,7 @@ from transforms3d import quaternions
 import random
 import string
 import argparse
+import matplotlib.pyplot as plt
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -65,7 +66,8 @@ def main(args):
                    num_envs=1, 
                    viewer_camera_configs={'shader_pack': args.shader}, 
                    render_mode="human" if gui else "rgb_array", 
-                   enable_shadow=True, 
+                   enable_shadow=True,
+                   obs_mode='rgbd',
                    **arena_data)
 
     if not gui:
@@ -91,6 +93,14 @@ def main(args):
         action = env.action_space.sample()
         obs, reward, terminated, truncated, info = env.step(torch.zeros_like(torch.from_numpy(action)))
 
+        rgb_image = obs["sensor_data"]["base_camera"]["rgb"]
+        # rgb_image = np.squeeze(rgb_image, axis=0)
+        env.sim.place_camera(position=[0.5, 0.0, 1.0], look_at=[0, 0, 0.5])
+        rgb_image = rgb_image.permute((0, 3, 1, 2))
+        
+        plt.imshow(rgb_image)
+        plt.axis("off")
+        plt.show()
         env.render()
         # env.render_human() # will render with a window if possible
     env.close()

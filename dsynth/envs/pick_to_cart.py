@@ -57,7 +57,7 @@ class PickToCart(DarkstoreEnv):
             self.agent.robot.set_pose(sapien.Pose([0.5, 1.7, 0.0]))
             
         robot_pose = self.agent.robot.get_pose()
-        cart_shift = np.array([0.6, -0.2, 0.])
+        cart_shift = np.array([0.4, -0.2, 0.])
         cube_shift_up = np.array([0, 0, 0.4])
         new_cart_pose_p = robot_pose.p[0].numpy() + cart_shift 
         

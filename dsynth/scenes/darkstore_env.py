@@ -119,7 +119,6 @@ class DarkstoreEnv(BaseEnv):
         self.scene_builder.build(self.style_ids)
         self._load_scene_from_json(options)
 
-
     def _process_string(self, s):
         if '_' in s:
             return s.split('_',1)[0] + '.obj'
@@ -253,10 +252,6 @@ class DarkstoreEnv(BaseEnv):
                             self.actors["objects"][obj_name] = []
                         self.actors["objects"][obj_name].append({"actor" : actor, "p" : p, "q" : q})
 
-
-
-
-
     def _initialize_episode(self, env_idx: torch.Tensor, options: dict):
         
         if self.robot_uids == "fetch":
@@ -301,19 +296,6 @@ class DarkstoreEnv(BaseEnv):
             
         else:
             raise NotImplementedError
-
-
-    # def evaluate(self):
-    #     is_obj_placed = (
-    #         torch.linalg.norm(self.agent.robot.get_pose().p - self.actors["objects"]["milk_1_1_0"][0]['p'], axis=1)
-    #         <= 0.001
-    #     )
-    #     is_robot_static = self.agent.is_static(0.2)
-    #     return {
-    #         "success": is_obj_placed & is_robot_static,
-    #         "is_obj_placed": is_obj_placed,
-    #         "is_robot_static": is_robot_static,
-    #     }
 
     def _get_obs_extra(self, info: Dict):
         return dict()
