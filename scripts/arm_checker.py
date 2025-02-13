@@ -26,6 +26,7 @@ sys.path.append(".")
 from dsynth.scenes.darkstore_env import get_arena_data, DarkstoreEnv
 from dsynth.envs.pick_to_cart import PickToCart
 from dsynth.motionplanning.solvers.pick_box import solve, solve_smooth
+from PIL import Image
 #lubin/darkstore_synthesizer/scenes/myscene_5_5.json
 ENV_NAME = 'DarkstoreEnv'
 cnt_good = 0
@@ -49,6 +50,19 @@ for j in range(0, 20):
     m = data['meta']['m']
     arena_data = get_arena_data(x_cells=n, y_cells=m, height=4)
 
+# env = PickToCart(scene_json = json_file_path, assets_dir = "models", style_ids = [0], robot_uids = "panda_wristcam", render_mode="rgb_array", control_mode="pd_joint_pos", **arena_data)
+env = gym.make('PickToCart', 
+        robot_uids='panda_wristcam', 
+        scene_json = json_file_path,
+        assets_dir = assets_dir,
+        mapping_file = mapping_file,
+        style_ids = [style_id], 
+        num_envs=1, 
+        viewer_camera_configs={'shader_pack': 'default'}, 
+        control_mode="pd_joint_pos",
+        render_mode="rgb_array", 
+        enable_shadow=True, 
+        **arena_data)
     # env = PickToCart(scene_json = json_file_path, assets_dir = "models", style_ids = [0], robot_uids = "panda", render_mode="rgb_array", control_mode="pd_joint_pos", **arena_data)
     env = gym.make('PickToCart', 
             robot_uids='panda', 
@@ -63,6 +77,18 @@ for j in range(0, 20):
             enable_shadow=True, 
             **arena_data)
 
+new_traj_name = time.strftime("%Y%m%d_%H%M%S")
+env = RecordEpisode(
+        env,
+        output_dir= f"./videos_style_{style_id}_motionplanning",
+        trajectory_name=new_traj_name, 
+        save_video=True,
+        max_steps_per_video=300,
+        source_type="motionplanning",
+        source_desc="official motion planning solution",
+        video_fps=30,
+        save_on_reset=False
+    )
     # env = RecordEpisode(
     #         env,
     #         f"./videos__style{style_id}", # the directory to save replay videos and trajectories to
@@ -91,9 +117,23 @@ for j in range(0, 20):
 
     # target = env.actors['objects']['milk'][0]
 
+target = env.actors["objects"]["milk_1_1_0"][0]['actor']
+goal_pose = env.target_volume.pose * sapien.Pose([0, 0, 0.6])
+camera_name = "hand_camera" 
     target = env.actors["objects"]["milk_1_1_0"][0]['actor']
     goal_pose = env.target_volume.pose * sapien.Pose([0, 0, 0.6])
 
+for i in tqdm(range(1)):
+# while True:
+    if target is not None and goal_pose is not None:
+        obs, reward, terminated, truncated, info = solve(env, target, goal_pose, vis=False)
+        env.render()
+        # wrist_rgb = obs["hand_camera"]["rgb"]
+        print(obs)
+    else:
+        action = env.action_space.sample()
+    # action = env.action_space.sample()
+        print(action)
     for i in tqdm(range(1)):
     # while True:
         if target is not None and goal_pose is not None:

@@ -50,7 +50,7 @@ class OurEnv(BaseEnv):
     This is just a very smart environment for goida transformation from ss
     """
 
-    def __init__(self, *args, robot_uids="panda", **kwargs):
+    def __init__(self, *args, robot_uids="panda_wristcam", **kwargs):
         super().__init__(*args, robot_uids=robot_uids, **kwargs)
 
     @property

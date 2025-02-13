@@ -52,7 +52,7 @@ class EmptyDarkstore(BaseEnv):
     This is just a dummy environment for showcasing robots in a empty scene
     """
 
-    def __init__(self, *args, robot_uids="panda", arena_config = None, **kwargs):
+    def __init__(self, *args, robot_uids="panda_wristcam", arena_config = None, **kwargs):
         self.arena_config = arena_config            
         super().__init__(*args, robot_uids=robot_uids, **kwargs)
 

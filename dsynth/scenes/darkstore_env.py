@@ -69,7 +69,7 @@ class DarkstoreEnv(BaseEnv):
     IMPORTED_SS_SCENE_SHIFT = np.array([CELL_SIZE / 2, CELL_SIZE / 2, 0])
 
     def __init__(self, *args, 
-                 robot_uids="panda", 
+                 robot_uids="panda_wristcam", 
                  scene_json=None, 
                  arena_config = None, 
                  meta = None, 
@@ -277,7 +277,7 @@ class DarkstoreEnv(BaseEnv):
             self.agent.reset(qpos)
             self.agent.robot.set_pose(sapien.Pose([0.5, 0.5, 0.0]))
             # self._load_shopping_cart(options)
-        elif self.robot_uids == "panda":
+        elif self.robot_uids == "panda_wristcam":
             qpos = np.array(
                 [
                     0.0,        
