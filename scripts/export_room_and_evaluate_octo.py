@@ -118,8 +118,8 @@ def main(args):
             env.render()
             
             # CHANGE model = ... Kostya FineTuned model from jax !!!!!
-            
             model = OctoModelPt.load_pretrained_from_jax("hf://rail-berkeley/octo-small-1.5")['octo_model']
+            
             stats = model.dataset_statistics["bridge_dataset"]["action"]
             model.to(device)
 
@@ -139,7 +139,7 @@ def main(args):
                     generator=torch.Generator(device).manual_seed(0),
                 )
                 action = action[:, 0, :]
-                
+                # print(f"Action: {action}")
                 obs, reward, terminated, truncated, info = env.step(torch.zeros_like(action))
                 
                 rgb_image_primary = torch.tensor(obs["sensor_data"]["base_camera"]["rgb"], device=device).permute(0, 3, 1, 2)
@@ -164,7 +164,8 @@ def main(args):
                 # env.render_human() # will render with a window if possible
                 
             cnt_envs += 1
-            if (env.evaluate()):
+            print
+            if (env.evaluate()['success']):
                 cnt_success += 1
                 
             env.close()
