@@ -31,7 +31,7 @@ class PickToCart(DarkstoreEnv):
     @property
     def _default_human_render_camera_configs(self):
         # pose = sapien_utils.look_at([7, 7, 7], [5, 5, 2])
-        pose = sapien_utils.look_at([0, 1.3, 1.2], [1, 2, 1])
+        pose = sapien_utils.look_at([-1, 0.3, 1.2], [1, 2, 1])
         return CameraConfig(
             "render_camera", pose=pose, width=512, height=512, fov=1, near=0.01, far=100
         )
