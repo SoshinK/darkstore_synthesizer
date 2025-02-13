@@ -8,9 +8,10 @@ from mani_skill.sensors.camera import CameraConfig
 import sapien
 import numpy as np
 
+LANGUAGE_INSTRUCTION = 'pick a milk from the shelf and put it on the cart'
+
 @register_env('PickToCart', max_episode_steps=200000)
 class PickToCart(DarkstoreEnv):
-    LANGUAGE_INSTRUCTION = 'pick a milk from the shelf and put it on the cart'
 
     def evaluate(self):
         target_pos = torch.tensor(self.target_volume.pose.p, dtype=torch.float32)
@@ -39,9 +40,10 @@ class PickToCart(DarkstoreEnv):
         super()._load_scene(options)
         self._load_shopping_cart(options)
     
-    def _get_obs_extra(self, info: Dict):
-        """Get task-relevant extra observations. Usually defined on a task by task basis"""
-        return {'language_instruction': self.LANGUAGE_INSTRUCTION}
+    # def _get_obs_extra(self, info: Dict):
+    #     """Get task-relevant extra observations. Usually defined on a task by task basis"""
+    #     lang_task = dict(language_instruction = str.encode(LANGUAGE_INSTRUCTION))
+    #     return lang_task
         
         
     @property
