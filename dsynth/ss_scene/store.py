@@ -244,7 +244,8 @@ def try_shelf_placement(
         darkstore: list[list],
         is_rotate: list[list],
         random_shelfs: list[list[list]],
-        is_showed: bool = False):
+        is_showed: bool = False,
+        suf:str = ""):
     n, m = len(darkstore), len(darkstore[0])
     cells = []
     for i in range(n):
@@ -290,9 +291,10 @@ def try_shelf_placement(
     del data["geometry"]
     data["meta"] = {"n": n, "m": m}
 
-    with open(f"myscene_{n}_{m}.json", "w") as f:
+    with open(f"myscene_{n}_{m}" + suf + ".json", "w") as f:
         # f.write(json_str)
         json.dump(data, f, indent=4)
+
 
 
 def try_one_shelf_placement_with(products_on_boards: list[list]):
