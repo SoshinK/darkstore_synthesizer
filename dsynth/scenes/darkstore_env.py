@@ -163,7 +163,7 @@ class DarkstoreEnv(BaseEnv):
                 self.target_volume = actors.build_cube(
                     self.scene,
                     half_size=self.cube_half_size,
-                    color=[1, 0, 0, 0.4],
+                    color=[0, 0, 0, 0],
                     name="cube",
                     body_type="static",
                     add_collision=False,

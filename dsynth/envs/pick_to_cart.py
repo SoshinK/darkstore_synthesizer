@@ -1,3 +1,5 @@
+from typing import Dict
+
 from dsynth.scenes.darkstore_env import DarkstoreEnv
 from mani_skill.utils.registration import register_env
 import torch
@@ -8,12 +10,12 @@ import numpy as np
 
 @register_env('PickToCart', max_episode_steps=200000)
 class PickToCart(DarkstoreEnv):
-
+    LANGUAGE_INSTRUCTION = 'pick a milk from the shelf and put it on the cart'
 
     def evaluate(self):
         target_pos = torch.tensor(self.target_volume.pose.p, dtype=torch.float32)
-        target_half_extents = torch.tensor(self.cube_half_size * 3, dtype=torch.float32)
-        milk_pos = torch.tensor(self.actors["objects"]["milk_1_1_0"][0]['p'], dtype=torch.float32)
+        target_half_extents = torch.tensor(self.cube_half_size * 1, dtype=torch.float32)
+        milk_pos = self.actors["objects"]["milk_1_1_0"][0]['actor'].pose.p
         
         is_obj_placed = torch.all(
             (milk_pos >= (target_pos - target_half_extents)) & 
@@ -36,7 +38,10 @@ class PickToCart(DarkstoreEnv):
     def _load_scene(self, options: dict):
         super()._load_scene(options)
         self._load_shopping_cart(options)
-        
+    
+    def _get_obs_extra(self, info: Dict):
+        """Get task-relevant extra observations. Usually defined on a task by task basis"""
+        return {'language_instruction': self.LANGUAGE_INSTRUCTION}
         
         
     @property
@@ -46,6 +51,11 @@ class PickToCart(DarkstoreEnv):
         return CameraConfig(
             "render_camera", pose=pose, width=512, height=512, fov=1, near=0.01, far=100
         )
+    
+    @property
+    def _default_sensor_configs(self):
+        pose = sapien_utils.look_at([0.9, 1.4, 1.3], [0.8, 1.8, 1.05])
+        return [CameraConfig("base_camera", pose, 256, 256, np.pi / 2, 0.01, 100)]
 
     def _initialize_episode(self, env_idx: torch.Tensor, options: dict):
         super()._initialize_episode(env_idx, options)
