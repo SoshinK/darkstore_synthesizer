@@ -192,7 +192,7 @@ def set_shelf(
         errosion_distance= 0.3
         
     )
-    print(support_data)
+    # print(support_data)
     return support_data
 
 
@@ -293,7 +293,7 @@ def try_shelf_placement(
     del data["geometry"]
     data["meta"] = {"n": n, "m": m}
 
-    with open(f"myscene_{n}_{m}" + suf + ".json", "w") as f:
+    with open(f"gen_scenes/myscene_{n}_{m}" + suf + ".json", "w") as f:
         # f.write(json_str)
         json.dump(data, f, indent=4)
 
