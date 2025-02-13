@@ -20,9 +20,11 @@
     "random_shelfs": [
         [
             [],
-            ["milk"],
             [
+                "milk",
+                "coke"
             ],
+            [],
             [],
             []
         ]
