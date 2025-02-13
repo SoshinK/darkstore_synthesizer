@@ -64,6 +64,7 @@ def made_mv_seq(planner, reach_pose, cur_pose, inv: bool = False):
     
 
 def solve(env: DarkstoreEnv, target: Actor, goal_pose: sapien.Pose, seed=None, debug=False, vis=False):
+    env.reset(seed=seed)
     planner = PandaArmMotionPlanningSolver(
         env,
         debug=debug,
@@ -155,6 +156,7 @@ def move_to_goal_pose(planner: PandaArmMotionPlanningSolver, init_pose, goal_pos
     return res
 
 def solve_smooth(env: DarkstoreEnv, target: Actor, goal_pose: sapien.Pose, seed=None, debug=False, vis=False):
+    env.reset(seed=seed)
     planner = PandaArmMotionPlanningSolver(
         env,
         debug=debug,
@@ -183,9 +185,12 @@ def solve_smooth(env: DarkstoreEnv, target: Actor, goal_pose: sapien.Pose, seed=
 
     goal_closing = goal_pose.to_transformation_matrix()[0, :3, 1].cpu().numpy()
     goal_approaching = goal_pose.to_transformation_matrix()[0, :3, 2].cpu().numpy()
+
+    pre_goal_center = goal_pose.to_transformation_matrix()[0, :3, 3].cpu().numpy() - np.array([0.1, -0.2, 0.4])
     goal_center = goal_pose.to_transformation_matrix()[0, :3, 3].cpu().numpy() - np.array([0.1, 0., 0.3])
 
     init_pose = env.agent.build_grasp_pose(target_approaching, target_closing, tcp_center)
+    pre_goal_pose = env.agent.build_grasp_pose(-goal_approaching, -goal_closing, pre_goal_center)
     goal_pose = env.agent.build_grasp_pose(-goal_approaching, -goal_closing, goal_center)
 
 
@@ -226,7 +231,9 @@ def solve_smooth(env: DarkstoreEnv, target: Actor, goal_pose: sapien.Pose, seed=
     # -------------------------------------------------------------------------- #
     # Return 
     # -------------------------------------------------------------------------- #
-    res = planner.move_to_pose_with_screw(init_pose)
+    # res = planner.move_to_pose_with_screw(init_pose)
+    res = planner.move_to_pose_with_screw(pre_goal_pose)
+    
     # planner.close()
     # return res
 
@@ -235,6 +242,6 @@ def solve_smooth(env: DarkstoreEnv, target: Actor, goal_pose: sapien.Pose, seed=
     # -------------------------------------------------------------------------- #
 
     res = planner.move_to_pose_with_screw(goal_pose)
-    
+    res = planner.open_gripper()
     planner.close()
     return res
