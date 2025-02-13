@@ -184,11 +184,30 @@ def set_shelf(
         scene.add_object(shelf, name, transform=tra.translation_matrix((x, y, 0.0)))
     support_data = scene.label_support(
         label=support_name,
+        erosion_distance=0.1,
+        # min_x=0.1,
         obj_ids=[name],
         min_area=0.05,
         gravity=np.array([0, 0, -1]),
     )
+    print(support_data)
     return support_data
+
+
+class CustomPositionIteratorGrid(utils.PositionIteratorGrid):
+    def __call__(self, support):
+        if support.polygon != self.polygon:
+            self.polygon = support.polygon
+
+            minx, miny, maxx, maxy = self.polygon.bounds
+            self.start_point = np.array([0.6, miny])
+            self.end_point = np.array([maxx, maxy])
+            self.i = 0
+            self.j = 0
+
+            self.new_line = False
+
+        return self
 
 
 def add_objects_to_shelf(
@@ -199,6 +218,7 @@ def add_objects_to_shelf(
     cnt_prod_on_board: int,
     support_data,
 ):
+    support_data
     for num_board in range(cnt_boards):
         for elem in product_on_board[num_board]:
             scene.place_objects(
@@ -208,11 +228,11 @@ def add_objects_to_shelf(
                 obj_asset_iterator=tuple(NAMES_OF_PRODUCTS[elem] for _ in range(cnt_prod_on_board)),
                 # obj_support_id_iterator=scene.support_generator(f'support{cnt}'),
                 obj_support_id_iterator=utils.cycle_list(support_data, [num_board]),
-                obj_position_iterator=utils.PositionIteratorGrid(
+                obj_position_iterator=CustomPositionIteratorGrid(
                     step_x=0.2,
                     step_y=0.1,
-                    noise_std_x=0.01,
-                    noise_std_y=0.01,
+                    noise_std_x=0.05,
+                    noise_std_y=0.05,
                     direction="x",
                 ),
                 obj_orientation_iterator=utils.orientation_generator_uniform_around_z(),
@@ -224,7 +244,8 @@ def try_shelf_placement(
         darkstore: list[list],
         is_rotate: list[list],
         random_shelfs: list[list[list]],
-        is_showed: bool = False):
+        is_showed: bool = False,
+        suf:str = ""):
     n, m = len(darkstore), len(darkstore[0])
     cells = []
     for i in range(n):
@@ -270,9 +291,10 @@ def try_shelf_placement(
     del data["geometry"]
     data["meta"] = {"n": n, "m": m}
 
-    with open(f"myscene_{n}_{m}.json", "w") as f:
+    with open(f"myscene_{n}_{m}" + suf + ".json", "w") as f:
         # f.write(json_str)
         json.dump(data, f, indent=4)
+
 
 
 def try_one_shelf_placement_with(products_on_boards: list[list]):

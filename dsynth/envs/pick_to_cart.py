@@ -39,7 +39,7 @@ class PickToCart(DarkstoreEnv):
     def _initialize_episode(self, env_idx: torch.Tensor, options: dict):
         super()._initialize_episode(env_idx, options)
         
-        if self.robot_uids == "panda":
+        if self.robot_uids == "panda_wristcam":
             qpos = np.array(
                 [
                     np.pi / 2,        

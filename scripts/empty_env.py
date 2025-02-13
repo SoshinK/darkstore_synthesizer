@@ -28,7 +28,7 @@ class MyEmptyEnv(BaseEnv):
     This is just a dummy environment for showcasing robots in a empty scene
     """
 
-    def __init__(self, *args, robot_uids="panda", **kwargs):
+    def __init__(self, *args, robot_uids="panda_wristcam", **kwargs):
         super().__init__(*args, robot_uids=robot_uids, **kwargs)
 
     @property

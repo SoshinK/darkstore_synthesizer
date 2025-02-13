@@ -58,7 +58,7 @@ def main(args):
     arena_data = get_arena_data(x_cells=n, y_cells=m, height=4)
 
     env = gym.make('PickToCart', 
-                   robot_uids='panda', 
+                   robot_uids='panda_wristcam', 
                    scene_json = json_file_path,
                    assets_dir = assets_dir,
                    mapping_file = mapping_file,
