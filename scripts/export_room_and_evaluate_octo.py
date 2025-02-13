@@ -4,6 +4,7 @@ from dsynth.scenes.darkstore_env import DarkstoreEnv, get_arena_data
 from dsynth.envs.pick_to_cart import PickToCart
 from typing import Dict
 from octo.model.octo_model_pt import OctoModelPt
+from mani_skill.sensors.camera import CameraConfig
 
 import sapien
 import sys
@@ -57,9 +58,9 @@ def main(args):
     device = torch.device(args.device if torch.cuda.is_available() else "cpu")
 
 
-    
+
     cnt_envs = 0
-    cnt_success = 0
+    cnt_success = 0 
 
     
     for file_name in os.listdir(json_folder_path):
@@ -80,6 +81,7 @@ def main(args):
                         mapping_file = mapping_file,
                         style_ids = [style_id], 
                         num_envs=1, 
+                        # extra_camera_configs=camera_configs,
                         viewer_camera_configs={'shader_pack': args.shader}, 
                         render_mode="human" if gui else "rgb_array", 
                         enable_shadow=True,
@@ -98,13 +100,15 @@ def main(args):
 
             obs, _ = env.reset()
             
-            rgb_image = torch.tensor(obs["sensor_data"]["base_camera"]["rgb"], device=device).permute(0, 3, 1, 2)
-
-
-            obs_stack = torch.zeros((1, 2, 3, 256, 256), dtype=rgb_image.dtype, device=device)
-            obs_stack[:, 1] = rgb_image
+            rgb_image_primary = torch.tensor(obs["sensor_data"]["base_camera"]["rgb"], device=device).permute(0, 3, 1, 2)
+            obs_primary = torch.zeros((1, 2, 3, 256, 256), dtype=rgb_image_primary.dtype, device=device)
+            obs_primary[:, 1] = rgb_image_primary
             
-            observation = {'image_primary': obs_stack}
+            rgb_image_wrist = torch.tensor(obs["sensor_data"]["hand_camera"]["rgb"], device=device).permute(0, 3, 1, 2)
+            obs_wrist = torch.zeros((1, 2, 3, 128, 128), dtype=rgb_image_wrist.dtype, device=device)
+            obs_wrist[:, 1] = rgb_image_wrist
+            
+            observation = {'image_primary': obs_primary, 'image_wrist': obs_wrist}
 
 
 
@@ -138,13 +142,21 @@ def main(args):
                 
                 obs, reward, terminated, truncated, info = env.step(torch.zeros_like(action))
                 
-                rgb_image = obs["sensor_data"]["base_camera"]["rgb"]
-                rgb_image = rgb_image.permute((0, 3, 1, 2)).to(device)
+                rgb_image_primary = torch.tensor(obs["sensor_data"]["base_camera"]["rgb"], device=device).permute(0, 3, 1, 2)
+                obs_primary = torch.zeros((1, 2, 3, 256, 256), dtype=rgb_image_primary.dtype, device=device)
+                obs_primary[:, 1] = rgb_image_primary
                 
-                obs_stack[:, 0] = obs_stack[:, 1].clone() 
-                obs_stack[:, 1] = rgb_image
+                rgb_image_wrist = torch.tensor(obs["sensor_data"]["hand_camera"]["rgb"], device=device).permute(0, 3, 1, 2)
+                obs_wrist = torch.zeros((1, 2, 3, 128, 128), dtype=rgb_image_wrist.dtype, device=device)
+                obs_wrist[:, 1] = rgb_image_wrist
+                
+                observation = {'image_primary': obs_primary, 'image_wrist': obs_wrist}                
+                obs_primary[:, 0] = obs_primary[:, 1].clone() 
+                obs_primary[:, 1] = rgb_image_primary
+                obs_wrist[:, 0] = obs_wrist[:, 1].clone() 
+                obs_wrist[:, 1] = rgb_image_wrist
                 timestep_pad_mask = torch.tensor([True, True], dtype=torch.bool).to(device)
-                observation = {'image_primary':obs_stack}
+                observation = {'image_primary': obs_primary, 'image_wrist': obs_wrist}
 
 
 
