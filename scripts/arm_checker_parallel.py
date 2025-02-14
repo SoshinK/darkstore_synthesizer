@@ -27,13 +27,18 @@ from dsynth.scenes.darkstore_env import get_arena_data, DarkstoreEnv
 from dsynth.envs.pick_to_cart import PickToCart
 from dsynth.motionplanning.solvers.pick_box import solve, solve_smooth
 #lubin/darkstore_synthesizer/scenes/myscene_5_5.json
+
+NUM_PROC = 4
+
 ENV_NAME = 'DarkstoreEnv'
-cnt_good = 0
+# cnt_good = 0
+from multiprocessing import Pool
+
 
 IDLE_STEPS_MAX = 90
 
-for j in tqdm(range(0, 400)):
-    
+
+def routine(j):
     json_file_path = "myscene_2_2.json"
     json_file_path = "./gen_scenes/myscene_2_2" + str(j)+ ".json"
     # json_file_path = "darkstore_synthesizer/scenes/myscene_5_5.json"
@@ -64,12 +69,12 @@ for j in tqdm(range(0, 400)):
             enable_shadow=True, 
             **arena_data)
 
-    new_traj_name = str(cnt_good)
+    # new_traj_name = str(cnt_good)
     
     env = RecordEpisode(
         env,
-        output_dir=f"./arm_checker_out/videos_style_{style_id}_motionplanning" + str(cnt_good),
-        trajectory_name=new_traj_name, save_video=False,
+        output_dir=f"./arm_checker_out/videos_style_{style_id}_motionplanning_{j}",
+        trajectory_name=str(j), save_video=False,
         source_type="motionplanning",
         source_desc="AI360 winter school",
         video_fps=30,
@@ -102,11 +107,25 @@ for j in tqdm(range(0, 400)):
 
     result = env.evaluate()
     print(result)
-    if result['success']:
-        with open("arm_checker_out/good_scene" + str(cnt_good) + ".json", 'w', encoding='utf-8') as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
-        cnt_good += 1
+    # is_success = False
+    # if result['success']:
+    #     is_success = True
+        # cnt_good += 1
     viewer.paused = True
     env.render()
     env.close()
-print(cnt_good)
+    return {"videos_style_{style_id}_motionplanning_{j}": result['success'].item()}
+    # print(cnt_good)
+    
+# for j in tqdm(range(0, 10)):
+#     print(routine(j))
+    
+    
+with Pool(NUM_PROC) as p:
+    # print(p.map(routine, range(0, 10)))
+    r = list(tqdm(p.imap(routine, range(0, 200)), total=200))
+
+
+with open('./arm_checker_out/successes.json', 'w') as f:
+    json.dump(r, f)
+    
