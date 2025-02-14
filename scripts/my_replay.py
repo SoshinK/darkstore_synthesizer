@@ -19,6 +19,8 @@ import numpy as np
 import torch
 import tyro
 from tqdm import tqdm
+import sys
+sys.path.append('.')
 
 import mani_skill.envs
 from mani_skill.envs.utils.system.backend import CPU_SIM_BACKENDS
