@@ -62,9 +62,24 @@ def main(args):
 
     cnt_envs = 0
     cnt_success = 0 
+    
+    # CHANGE model = ... Kostya FineTuned model from jax !!!!!
+    # model = OctoModelPt.load_pretrained("hf://rail-berkeley/octo-small-1.5")['octo_model']
+    # model = OctoModelPt.load_pretrained('../octo-pytorch//finetune_darkstore/octo_finetune/experiment_20250214_010238/')['octo_model']
+    # model = OctoModelPt.load_pretrained('../octo-pytorch/finetune_darkstore/octo_finetune/finetune_darkstore_20250214_064911/')['octo_model']
+    model = OctoModelPt.load_pretrained('../octo-pytorch/finetune_darkstore/octo_finetune/finetune_darkstore_50k_iters_20250214_201643/')['octo_model']
+    stats = model.dataset_statistics["action"]
+    model.to(device)
 
+    MAX_ENVS = 50
+    
+    def change_gripper_value(action):
+        action[:, -1] = (action[:, -1] - 0.5) * 2
+        return action
     
     for n_env, file_name in enumerate(os.listdir(json_folder_path)):
+        if n_env > MAX_ENVS:
+            break
         json_file_path = os.path.join(json_folder_path, file_name)
         if os.path.isfile(json_file_path) and file_name.endswith(".json"):  
             
@@ -93,7 +108,7 @@ def main(args):
             if not gui:
                 env = RecordEpisode(
                     env,
-                    output_dir=f"./octo_videos/{n_env}",
+                    output_dir=f"./octo_videos_50k_iters/{n_env}",
                     trajectory_name=str(n_env), 
                     save_video=True,
                     source_desc="Octo Model",
@@ -118,11 +133,6 @@ def main(args):
                 viewer.paused = False
             env.render()
             
-            # CHANGE model = ... Kostya FineTuned model from jax !!!!!
-            # model = OctoModelPt.load_pretrained("hf://rail-berkeley/octo-small-1.5")['octo_model']
-            model = OctoModelPt.load_pretrained('../octo-pytorch//finetune_darkstore/octo_finetune/experiment_20250214_010238/')['octo_model']
-            stats = model.dataset_statistics["action"]
-            model.to(device)
 
             task = model.create_tasks(texts=[language_instruction], device=device)
             timestep_pad_mask = torch.tensor([False, True], dtype=torch.bool).to(device)
@@ -141,6 +151,7 @@ def main(args):
                 )
                 action = action[:, 0, :]
                 # print(f"Action: {action}")
+                action = change_gripper_value(action)
                 obs, reward, terminated, truncated, info = env.step(action)
                 
                 if (env.evaluate()['success']):
