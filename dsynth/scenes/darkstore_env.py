@@ -69,7 +69,7 @@ class DarkstoreEnv(BaseEnv):
     IMPORTED_SS_SCENE_SHIFT = np.array([CELL_SIZE / 2, CELL_SIZE / 2, 0])
 
     def __init__(self, *args, 
-                 robot_uids="panda", 
+                 robot_uids="panda_wristcam", 
                  scene_json=None, 
                  arena_config = None, 
                  meta = None, 
@@ -77,17 +77,6 @@ class DarkstoreEnv(BaseEnv):
                  mapping_file=None,
                  assets_dir = DEFAULT_ASSETS_DIR,
                  **kwargs):
-        with open(scene_json, "r") as f: # big_scene , one_shelf_many_milk_scene , customize
-            data = json.load(f)
-        n = data['meta']['n']
-        m = data['meta']['m']
-        arena_data = get_arena_data(x_cells=n, y_cells=m, height=4)
-        if (meta is None):
-            meta = arena_data['meta']
-        if (arena_config is None):
-            arena_config = arena_data['arena_config']
-        if (mapping_file is None):
-            mapping_file = str(os.path.dirname(os.path.abspath(__file__))) + "/../../models/connect.json"
         self.style_ids = style_ids
         self.arena_config = arena_config
         self.json_file_path = scene_json
@@ -100,7 +89,7 @@ class DarkstoreEnv(BaseEnv):
 
     @property
     def _default_sensor_configs(self):
-        pose = sapien_utils.look_at([1.25, -1.25, 1.5], [0.0, 0.0, 0.2])
+        pose = sapien_utils.look_at([0.7, 1.8, 1.15], [1.2, 2.2, 1.2])
         return [CameraConfig("base_camera", pose, 256, 256, np.pi / 2, 0.01, 100)]
 
     @property
@@ -118,7 +107,6 @@ class DarkstoreEnv(BaseEnv):
         self.scene_builder = RoomFromRobocasa(self, arena_config=self.arena_config)
         self.scene_builder.build(self.style_ids)
         self._load_scene_from_json(options)
-
 
     def _process_string(self, s):
         if '_' in s:
@@ -159,7 +147,7 @@ class DarkstoreEnv(BaseEnv):
         # recommended to use shift = (0,0.5,0)
         # print(self.unwrapped.agent.robot.get_pose())
         if not hasattr(self, 'shopping_cart'):
-            shopping_cart_asset = os.path.join(self.assets_dir, "smallShoppingCart.glb")
+            shopping_cart_asset = os.path.join(self.assets_dir, "smallShoppingCart2.glb")
             self.cube_half_size = 0.2
             
             if not os.path.exists(shopping_cart_asset):
@@ -175,7 +163,7 @@ class DarkstoreEnv(BaseEnv):
                 self.target_volume = actors.build_cube(
                     self.scene,
                     half_size=self.cube_half_size,
-                    color=[1, 0, 0, 0.4],
+                    color=[0, 0, 0, 0],
                     name="cube",
                     body_type="static",
                     add_collision=False,
@@ -253,10 +241,6 @@ class DarkstoreEnv(BaseEnv):
                             self.actors["objects"][obj_name] = []
                         self.actors["objects"][obj_name].append({"actor" : actor, "p" : p, "q" : q})
 
-
-
-
-
     def _initialize_episode(self, env_idx: torch.Tensor, options: dict):
         
         if self.robot_uids == "fetch":
@@ -282,7 +266,7 @@ class DarkstoreEnv(BaseEnv):
             self.agent.reset(qpos)
             self.agent.robot.set_pose(sapien.Pose([0.5, 0.5, 0.0]))
             # self._load_shopping_cart(options)
-        elif self.robot_uids == "panda":
+        elif self.robot_uids == "panda_wristcam":
             qpos = np.array(
                 [
                     0.0,        
@@ -301,19 +285,6 @@ class DarkstoreEnv(BaseEnv):
             
         else:
             raise NotImplementedError
-
-
-    # def evaluate(self):
-    #     is_obj_placed = (
-    #         torch.linalg.norm(self.agent.robot.get_pose().p - self.actors["objects"]["milk_1_1_0"][0]['p'], axis=1)
-    #         <= 0.001
-    #     )
-    #     is_robot_static = self.agent.is_static(0.2)
-    #     return {
-    #         "success": is_obj_placed & is_robot_static,
-    #         "is_obj_placed": is_obj_placed,
-    #         "is_robot_static": is_robot_static,
-    #     }
 
     def _get_obs_extra(self, info: Dict):
         return dict()
